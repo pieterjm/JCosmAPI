@@ -1,156 +1,101 @@
 package Cosm;
 
-import java.net.URL;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class Trigger {
-
-	/**
-	 * id of the Trigger
-	 */
-	private Integer ID;
-
-	/**
-	 * Url the Trigger posts to
-	 */
-	private URL url;
-
-	/**
-	 * id of the environment this Trigger reports on
-	 */
-	private Integer env_id;
-
-	/**
-	 * if of the stream this Trigger reposts on
-	 */
-	private Integer stream_id;
-
-	/**
-	 * Threshold of the trigger
-	 */
-	private Double threshold;
-
-	
-	/**
-	 * The event that the trigger reports on
-	 */
+	private String thresholdValue;
+	private String user;
+	private String notifiedAt;
+	private String url;
 	private TriggerType type;
-
-	/**
-	 * Default constructor
-	 */
-	public Trigger() {
-		super();
-		// TODO Auto-generated constructor stub
+	private String id;
+	private Integer environment_id;
+	private String stream_id;
+		
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject jo = new JSONObject();
+		
+		
+		jo.putOpt("threshold_value", this.thresholdValue);
+		jo.putOpt("url", this.url);
+		if ( type != null ) {
+			jo.putOpt("trigger_type", type.toString());
+		}
+		jo.putOpt("environment_id", environment_id);
+		jo.putOpt("stream_id", stream_id);
+		jo.putOpt("user", user);
+		jo.putOpt("notified_at",notifiedAt);
+		jo.putOpt("id", id);
+		
+		return jo;
+	}
+	
+	
+	
+	public String getUser() {
+		return user;
 	}
 
-	/**
-	 * Constructor
-	 * 
-	 */
-	public Trigger(URL url, int envId, int streamId, double threshold,
-			TriggerType type) {
-		super();
-		this.url = url;
-		env_id = envId;
-		stream_id = streamId;
-		this.threshold = threshold;
-		this.type = type;
+
+
+	public void setUser(String user) {
+		this.user = user;
 	}
 
-	public String toString() {
-		String str = "";
-		str = str + "trigger[url]=" + this.url.toString() + "&";
-		str = str + "trigger[trigger_type]=" + this.type + "&";
-		str = str + "trigger[threshold_value]=" + this.threshold + "&";
-		str = str + "trigger[environment_id]=" + this.env_id + "&";
-		str = str + "trigger[stream_id]=" + this.stream_id + "&";
 
-		return str;
+
+	public String getNotifiedAt() {
+		return notifiedAt;
 	}
 
-	/**
-	 * @return the iD
-	 */
-	public Integer getID() {
-		return ID;
+
+
+	public void setNotifiedAt(String notifiedAt) {
+		this.notifiedAt = notifiedAt;
 	}
 
-	/**
-	 * @param iD the iD to set
-	 */
-	public void setID(Integer iD) {
-		ID = iD;
+
+
+	public Integer getEnvironmentId() {
+		return environment_id;
 	}
 
-	/**
-	 * @return the url
-	 */
-	public URL getUrl() {
-		return url;
+	public void setEnvironmentId(Integer environment_id) {
+		this.environment_id = environment_id;
 	}
 
-	/**
-	 * @param url the url to set
-	 */
-	public void setUrl(URL url) {
-		this.url = url;
-	}
-
-	/**
-	 * @return the env_id
-	 */
-	public Integer getEnv_id() {
-		return env_id;
-	}
-
-	/**
-	 * @param envId the env_id to set
-	 */
-	public void setEnv_id(Integer envId) {
-		env_id = envId;
-	}
-
-	/**
-	 * @return the stream_id
-	 */
-	public Integer getStream_id() {
+	public String getStreamId() {
 		return stream_id;
 	}
 
-	/**
-	 * @param streamId the stream_id to set
-	 */
-	public void setStream_id(Integer streamId) {
-		stream_id = streamId;
+	public void setStreamId(String stream_id) {
+		this.stream_id = stream_id;
 	}
 
-	/**
-	 * @return the threshold
-	 */
-	public Double getThreshold() {
-		return threshold;
+	public String getId() {
+		return id;
 	}
-
-	/**
-	 * @param threshold the threshold to set
-	 */
-	public void setThreshold(Double threshold) {
-		this.threshold = threshold;
+	public void setId(String id) {
+		this.id = id;
 	}
-
-	/**
-	 * @return the type
-	 */
+	public String getThresholdValue() {
+		return thresholdValue;
+	}
+	public void setThresholdValue(String thresholdValue) {
+		this.thresholdValue = thresholdValue;
+	}
 	public TriggerType getType() {
 		return type;
 	}
-
-	/**
-	 * @param type the type to set
-	 */
 	public void setType(TriggerType type) {
 		this.type = type;
 	}
-
-	
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}	
 }

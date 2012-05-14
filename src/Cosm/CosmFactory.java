@@ -26,7 +26,7 @@ public class CosmFactory {
 	
 	
 	
-	public static Unit toUnit(JSONObject jo) throws JSONException {
+	private static Unit toUnit(JSONObject jo) throws JSONException {
 		Unit unit = new Unit();
 		
 		String type = jo.optString("type");
@@ -48,7 +48,7 @@ public class CosmFactory {
 	
 	}
 	
-	public static User toUser(JSONObject jo) throws JSONException {
+	private static User toUser(JSONObject jo) throws JSONException {
 		User user = new User();
 		
 		JSONObject ju = jo.optJSONObject("user");
@@ -154,7 +154,7 @@ public class CosmFactory {
 		return user;
 	}
 	
-	public static Integer[] toIntArray(JSONArray ja) throws JSONException {
+	private static Integer[] toIntArray(JSONArray ja) throws JSONException {
 		Integer[] list = new Integer[ja.length()];
 		for(int i=0;(i<ja.length());i++) {
 			list[i] = ja.getInt(i);
@@ -162,7 +162,7 @@ public class CosmFactory {
 		return list;
 	}
 	
-	public static String[] toStringArray(JSONArray ja) throws JSONException {
+	private static String[] toStringArray(JSONArray ja) throws JSONException {
 		String[] list = new String[ja.length()];
 		for(int i=0;(i<ja.length());i++) {
 			list[i] = ja.getString(i);
@@ -178,7 +178,7 @@ public class CosmFactory {
 		}
 	}
 	
-	public static Datastream toDatastream(JSONObject jo) throws JSONException {
+	private static Datastream toDatastream(JSONObject jo) throws JSONException {
 		Datastream datastream = new Datastream();
 		
 		String current_value = jo.optString("current_value");
@@ -224,7 +224,7 @@ public class CosmFactory {
 	}
 	
 	
-	public static Location toLocation(JSONObject jo) throws JSONException {
+	private static Location toLocation(JSONObject jo) throws JSONException {
 		Location location = new Location();
 		
 		String disposition = jo.optString("disposition");
@@ -265,7 +265,7 @@ public class CosmFactory {
 		return location;
 	}
 	
-	public static Datastream[] toDatastreams(JSONArray ja) throws JSONException 
+	private static Datastream[] toDatastreams(JSONArray ja) throws JSONException 
 	{
 		ArrayList<Datastream> dl = new ArrayList<Datastream>();
 		for(int i=0;(i<ja.length());i++) {
@@ -287,7 +287,7 @@ public class CosmFactory {
 		}
 	}
 	
-	public static Feed toFeed(JSONObject jo) throws JSONException {
+	private static Feed toFeed(JSONObject jo) throws JSONException {
 		Feed feed = new Feed();
 		
 		String title = jo.optString("title");
@@ -390,7 +390,7 @@ public class CosmFactory {
 	}
 	
 	
-	public static Feed[] toFeeds(JSONArray ja) throws JSONException {
+	private static Feed[] toFeeds(JSONArray ja) throws JSONException {
 		ArrayList<Feed> fl = new ArrayList<Feed>();
 		for(int i=0;(i<ja.length());i++) {
 			JSONObject jo = ja.getJSONObject(i);			
@@ -399,7 +399,7 @@ public class CosmFactory {
 		return fl.toArray(new Feed[0]);	
 	}
 	
-	public static Group toGroup(JSONObject jo) throws JSONException {
+	private static Group toGroup(JSONObject jo) throws JSONException {
 		Group group = new Group();
 		
 		group.setFeeds(CosmFactory.toIntArray(jo.getJSONArray("feeds")));
@@ -431,7 +431,7 @@ public class CosmFactory {
 		return group;
 	}
 	
-	public static Group[] toGroups(JSONArray ja) throws JSONException {
+	private static Group[] toGroups(JSONArray ja) throws JSONException {
 		ArrayList<Group> gl = new ArrayList<Group>();
 		for(int i=0;(i<ja.length());i++) {
 			JSONObject jo = ja.getJSONObject(i);
@@ -459,11 +459,82 @@ public class CosmFactory {
 	}
 
 	public static Trigger toTrigger(String s) throws CosmException {
-		throw new CosmException("not imnplemented");
+		try {
+			return toTrigger(new JSONObject(s));
+		} catch ( Exception e ) {
+			throw new CosmException(e.getMessage());
+		}
 	}
 
+	private static Trigger toTrigger(JSONObject jo) throws CosmException {
+		try {
+			Trigger trigger = new Trigger();
+			
+			String threshold_value = jo.optString("threshold_value");
+			if ( threshold_value != null ) {
+				trigger.setThresholdValue(threshold_value);
+			}
+			
+			String user = jo.optString("user");
+			if ( user != null ) {
+				trigger.setUser(user);
+			}
+			
+			String notified_at = jo.optString("notified_at");
+			if ( notified_at != null ) {
+				trigger.setNotifiedAt(notified_at);
+			}
+			
+			String url = jo.optString("url");
+			if ( url != null ) {
+				trigger.setUrl(url);
+			}
+			
+			String trigger_type = jo.optString("trigger_type");
+			if ( trigger_type != null ) {
+				trigger.setType(TriggerType.valueOf(trigger_type));
+			}
+			
+			String id = jo.optString("id");
+			if ( id != null ) {
+				trigger.setId(id);
+			}
+			
+			Integer environment_id = jo.optInt("environment_id");
+			if ( environment_id != null ) {
+				trigger.setEnvironmentId(environment_id);
+			}
+
+			String stream_id = jo.getString("stream_id");
+			if ( stream_id != null ) {
+				trigger.setStreamId(stream_id);
+			}
+						
+			return trigger;
+		} catch ( Exception e ) {
+			throw new CosmException(e.getMessage());
+		}
+	}
+	
 	public static Trigger[] toTriggers(String s) throws CosmException {
-		throw new CosmException("not imnplemented");
+		try {
+			return toTriggers(new JSONArray(s));
+		} catch ( Exception e ) {
+			throw new CosmException(e.getMessage());
+		}
+	}
+	
+	private static Trigger[] toTriggers(JSONArray ja) throws CosmException {
+		try {
+			ArrayList<Trigger> tl = new ArrayList<Trigger>();
+			for(int i=0;(i<ja.length());i++) {
+				JSONObject jo = ja.getJSONObject(i);
+				tl.add(CosmFactory.toTrigger(jo));
+			}
+			return tl.toArray(new Trigger[0]);
+		} catch ( Exception e ) {
+			throw new CosmException(e.getMessage());
+		}
 	}
 	
 	public static Datapoint toDatapoint(String s) throws CosmException {
@@ -482,7 +553,7 @@ public class CosmFactory {
 		}
 	}
 		
-	public static Datapoint toDatapoint(JSONObject jo) throws CosmException {
+	private static Datapoint toDatapoint(JSONObject jo) throws CosmException {
 		try {
 			Datapoint dp = new Datapoint();
 			dp.setAt(jo.getString("at"));
@@ -494,7 +565,7 @@ public class CosmFactory {
 	
 	}
 	
-	public static Datapoint[] toDatapoints(JSONObject jo) throws CosmException {
+	private static Datapoint[] toDatapoints(JSONObject jo) throws CosmException {
 		try {
 			ArrayList<Datapoint> dl = new ArrayList<Datapoint>();
 			JSONArray ja = jo.getJSONArray("datapoints");
