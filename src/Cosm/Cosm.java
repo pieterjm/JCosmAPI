@@ -690,7 +690,7 @@ public class Cosm {
 	}
 
 	// update trigger
-	public void updateDatapoint(Trigger trigger) throws CosmException {
+	public void updateTrigger(Trigger trigger) throws CosmException {
 		try {
 			HttpPut request = new HttpPut("http://api.cosm.com/v2/triggers/"+ trigger.getId() + ".json");
 			request.setEntity(new StringEntity(trigger.toJSONObject().toString()));
@@ -707,23 +707,105 @@ public class Cosm {
 				}
 			}
 		} catch ( Exception e) {
-			throw new CosmException("Caught exception in update datapoint: " + e.getMessage());
+			throw new CosmException("Caught exception in update trigger: " + e.getMessage());
 		}
 	}
 	
 	// get user
-	
+	public User getUser(String login) throws CosmException {
+		try {
+			HttpGet hr = new HttpGet("http://api.cosm.com/v2/users/"+login+".json");
+			HttpResponse response = client.execute(hr);
+			StatusLine statusLine = response.getStatusLine();
+			if ( statusLine.getStatusCode() == 200) {
+				return CosmFactory.toUser(client.getBody(response));				
+			} else {
+				throw new CosmException(response.getStatusLine().toString());				
+			}									
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException("error in getUser");
+		}
+	}
 	
 	// get users
+	public User[] getUsers() throws CosmException {
+		try {
+			HttpGet hr = new HttpGet("http://api.cosm.com/v2/users.json");
+			HttpResponse response = client.execute(hr);
+			StatusLine statusLine = response.getStatusLine();
+			if ( statusLine.getStatusCode() == 200) {
+				return CosmFactory.toUsers(client.getBody(response));				
+			} else {
+				throw new CosmException(response.getStatusLine().toString());				
+			}									
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException("error in getUsers");
+		}
+	}
 	
 	// delete user
+	public void deleteUser(String login) throws CosmException {
+		try {
+			HttpDelete request = new HttpDelete("http://api.cosm.com/v2/users/"+ login + ".json");			
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			client.getBody(response);
+			if ( statusLine.getStatusCode() != 200 ) {
+				throw new HttpException(statusLine.toString());
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException(e.getMessage());
+		}			
+	}
 	
 	// update user
+	public void updateUser(String login,User user) throws CosmException {
+		try {
+			HttpPut request = new HttpPut("http://api.cosm.com/v2/users/"+ login + ".json");
+			request.setEntity(new StringEntity(user.toJSONObject().toString()));
+			HttpResponse response = client.execute(request);			
+			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
+			if ( statusLine.getStatusCode() != 200 ) {
+				System.err.println(body);
+				if ( body.length() > 0 ) {
+					JSONObject ej = new JSONObject(body);
+					throw new CosmException(ej.getString("errors"));				
+				} else {
+					throw new CosmException(statusLine.toString());
+				}
+			}
+		} catch ( Exception e) {
+			throw new CosmException("Caught exception in update trigger: " + e.getMessage());
+		}
+	}
 	
 	// create user
+	public void createUser(User user) throws CosmException {
+		try {
+			HttpPost request = new HttpPost("http://api.cosm.com/v2/users.json");
+			request.setEntity(new StringEntity(user.toJSONObject().toString()));
+			HttpResponse response = client.execute(request);			
+			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
+			if ( statusLine.getStatusCode() == 201 ) {
+				if ( body.length() > 0 ) {
+					JSONObject ej = new JSONObject(body);
+					throw new CosmException(ej.getString("errors"));				
+				} else {
+					throw new CosmException(statusLine.toString());
+				}
+			}
+		} catch ( Exception e) {
+			throw new CosmException("Caught exception in update trigger: " + e.getMessage());
+		}
+	}
+		
+	//TODO: get permissions
 	
-	// get permissions
-	
-	// show permissions
+	//TODO: show permissions
 		
 }

@@ -733,5 +733,33 @@ public class CosmFactory {
 		}
 	}
 
+	public static User toUser(String s) throws CosmException {
+		try {
+			return CosmFactory.toUser(new JSONObject(s));
+		} catch ( Exception e ) {
+			throw new CosmException("could not convert string to JSONObject");
+		}				
+	}
+	
+	private static User[] toUsers(JSONArray ja) throws CosmException {
+		try {
+			ArrayList<User> ul = new ArrayList<User>();
+			for(int i=0;(i<ja.length());i++) {
+				ul.add(toUser(ja.getJSONObject(i)));
+			}
+			return ul.toArray(new User[0]);
+		} catch ( Exception e ) {
+			throw new CosmException("could not convert JSONObject to users");			
+		}
+	}
+	
+	public static User[] toUsers(String s) throws CosmException {
+		try {
+			return CosmFactory.toUsers(new JSONArray(s));
+		} catch ( Exception e ) {
+			throw new CosmException("could not convert JSONObject to user");
+		}						
+	}
+		
 	
 } 

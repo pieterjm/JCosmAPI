@@ -1,5 +1,8 @@
 package Cosm;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class User {
 	private String about;
 	private String api_key;
@@ -20,7 +23,37 @@ public class User {
 	private String[] roles;
 	private Boolean subscribedToMailings;
 	
-	
+	public JSONObject toJSONObject() throws JSONException {
+		try {
+			JSONObject jo = new JSONObject();
+			
+			jo.putOpt("login", login);
+			jo.putOpt("full_name", fullName);
+			jo.putOpt("email", email);
+			jo.putOpt("website", website);
+			jo.putOpt("about", about);
+			jo.putOpt("organisation", organisation);
+			jo.putOpt("deliver_email", deliver_email ? deliver_email.toString() : null);
+			jo.putOpt("display_activity", display_activity ? display_activity.toString() : null);
+			jo.putOpt("display_information", display_information ? display_information.toString() : null);
+			jo.putOpt("display_stats", displayStats ? displayStats.toString() : null);
+			jo.putOpt("receive_forum_notifications", receiveForumNotifications ? receiveForumNotifications.toString() : null);
+			jo.putOpt("subscribed_to_mailings", subscribedToMailings ? subscribedToMailings.toString() : null);
+			jo.putOpt("time_zone",timeZone);
+			for(int i=0;(i<roles.length);i++) {
+				jo.append("roles", roles[i]);
+			}
+			jo.putOpt("first_name", firstName);
+			jo.putOpt("last_name", lastName);
+			
+			JSONObject jou = new JSONObject();
+			jou.put("user",jou);
+			
+			return jou;
+		} catch ( Exception e ) {
+			throw new JSONException(e.getMessage());
+		}
+	}
 	
 	
 	
