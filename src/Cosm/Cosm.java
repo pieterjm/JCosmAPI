@@ -28,7 +28,13 @@ public class Cosm {
 		client = new CosmClient(username,password);
 	}
 
-	// get feed
+	/**
+	 * Get a feed by its feed identifier
+     * 
+     * @param feedid Id of the Pachube feed to retrieve
+     * @return Feed which corresponds to the id provided as the parameter
+     * @throws CosmException If something goes wrong.
+     */
 	public Feed getFeed(int feedid) throws CosmException {
 		try {			
 			HttpGet hr = new HttpGet("http://api.cosm.com/v2/feeds/"+feedid+".json");
@@ -47,6 +53,20 @@ public class Cosm {
 
 	// get feeds with more search options
 	// TODO: include lat, lon, distance, and distance_units in query
+	/**
+	 * returns a list of feed objects based on a number of optional query parameters. If set to {@link null}, a parameter is ignored.
+	 * 
+	 * @param query Full text {@link String} search parameter. Should return any feeds matching this string
+	 * @param content parameter of type {@link Content} describing the type of results
+	 * @param tag Returns feeds containing datastreams tagged with the search query
+	 * @param user Returns feeds created by the user specified.
+	 * @param units Returns feeds containing datastreams with units specified by the search query.
+	 * @param status Parameter of type {@link Status}
+	 * @param order Parameter of type {@link Order}. Used for ordering the results.
+	 * @param show_user Include user login and user level for each feed. {@link Boolean} with possible values: true, false (default)
+	 * @return Array of {@link Feed} objects
+	 * @throws CosmException
+	 */
 	public Feed[] getFeeds(String query,Content content,String tag,String user,String units,Status status,Order order,Boolean show_user) throws CosmException {
 		String q = "";
 		Boolean bAdd = false;
@@ -410,340 +430,197 @@ public class Cosm {
 	}
 
 	// get a datapoint
+	public Datapoint getDatapoint(Integer feedid, String datastreamid,String at) throws CosmException {
+		try {
+			HttpGet request = new HttpGet("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints/"+ at + ".json");
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			if ( statusLine.getStatusCode() == 200 ) {
+				return CosmFactory.toDatapoint(client.getBody(response));
+			} else {
+				throw new HttpException(statusLine.toString());
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException(e.getMessage());
+		}	
+	}
 	
 	// deleting a datapoint
+	public void deleteDatapoint(Integer feedid, String datastreamid,String at) throws CosmException {
+		try {
+			HttpDelete request = new HttpDelete("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints/"+ at);			
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			client.getBody(response);
+			if ( statusLine.getStatusCode() != 200 ) {
+				throw new HttpException(statusLine.toString());
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException(e.getMessage());
+		}	
+	}
 	
 	// deleting multiple datapoints
-
+	public void deleteDatapoints(Integer feedid, String datastreamid,String start, String end, String duration) throws CosmException {
+		try {
+			String url = "http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints?";
+			Boolean bAdd = false;
+			if ( start != null ) {
+				if ( bAdd ) url += '&';
+				url += "start=" + start;
+				bAdd = true;
+			}
+			if ( end != null ) {
+				if ( bAdd ) url += '&';
+				url += "end=" + end;
+				bAdd = true;
+			}
+			if ( duration != null ) {
+				if ( bAdd ) url += '&';
+				url += "duration=" + duration;
+				bAdd = true;
+			}
+			HttpDelete request = new HttpDelete(url);
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			if ( statusLine.getStatusCode() != 200 ) {
+				throw new HttpException(statusLine.toString());
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException(e.getMessage());
+		}	
+	}
 	
 	// listing all datapoints, historical queries
+	public Datapoint[] getDatapoints(Integer feedid, String datastreamid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type) throws CosmException {
+		try {
+			String url = "http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+".json?";
+			
+			Boolean bAdd = false;
+			if ( start != null ) {
+				if ( bAdd ) url += '&';
+				url += "start=" + start;
+				bAdd = true;
+			}
+			if ( end != null ) {
+				if ( bAdd ) url += '&';
+				url += "end=" + end;
+				bAdd = true;
+			}
+			if ( duration != null ) {
+				if ( bAdd ) url += '&';
+				url += "duration=" + duration;
+				bAdd = true;
+			}
+			if ( interval != null ) {
+				if ( bAdd ) url += '&';
+				url += "interval=" + interval;
+				bAdd = true;
+			}
+			if ( find_previous != null ) {
+				if ( bAdd ) url += '&';
+				url += "find_previous=" + find_previous.toString();
+				bAdd = true;
+			}
+			if ( interval_type != null ) {
+				if ( bAdd ) url += '&';
+				url += "interval_type=" + interval_type.toString();
+				bAdd = true;
+			}
+			
+			HttpGet request = new HttpGet(url);
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			if ( statusLine.getStatusCode() == 200 ) {
+				return CosmFactory.toDatapoints(client.getBody(response));
+			} else {
+				throw new HttpException(statusLine.toString());
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException(e.getMessage());			
+		}
+	}
 	
+	// create apikey
+	public Apikey createApikey(Apikey apikey) throws CosmException {
+		try {
+			HttpPost request = new HttpPost("http://api.cosm.com/v2/keys.json");
+			request.setEntity(new StringEntity(apikey.toJSONObject().toString()));
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);			
+			if ( statusLine.getStatusCode() == 201 ) {
+				String a[] = response.getHeaders("Location")[0].getValue().split("/");
+				String key = a[a.length -1];				
+				return this.getApikey(key);
+			} else {
+				throw new Exception(body);
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException("error while creating new apikey");
+		}
+	}
+		
+	// get an apikey
+	public Apikey getApikey(String apikey) throws CosmException {
+		try {
+			HttpGet hr = new HttpGet("http://api.cosm.com/v2/keys/"+apikey+".json");
+			HttpResponse response = client.execute(hr);
+			StatusLine statusLine = response.getStatusLine();
+			if ( statusLine.getStatusCode() == 200) {
+				return CosmFactory.toApikey(client.getBody(response));				
+			} else {
+				throw new CosmException(response.getStatusLine().toString());				
+			}						
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException("error in getApikey");
+		}
+	}
+		
+	// get a list of apikeys 
+	public Apikey[] getApikeys() throws CosmException {
+		try {
+			HttpGet hr = new HttpGet("http://api.cosm.com/v2/keys.json");
+			HttpResponse response = client.execute(hr);
+			StatusLine statusLine = response.getStatusLine();
+			if ( statusLine.getStatusCode() == 200) {
+				return CosmFactory.toApikeys(client.getBody(response));				
+			} else {
+				throw new CosmException(response.getStatusLine().toString());				
+			}						
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException("error in getApikey");
+		}
+	}
 	
-	
-	
-	// apikey
-	
+	// deleting an apikey
+	public void deleteApikey(String apikey) throws CosmException {
+		try {
+			HttpDelete request = new HttpDelete("http://api.cosm.com/v2/keys/"+ apikey);			
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			client.getBody(response);
+			if ( statusLine.getStatusCode() != 200 ) {
+				throw new HttpException(statusLine.toString());
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+			throw new CosmException(e.getMessage());
+		}	
+		
+	}
+		
 	// trigger
 	
 	// user
 	
 	// permissions
-	
-	
+		
 }
-
-
-//	
-//	
-//	private PachubeClient client;
-//	public PachubeFeed Feed;
-//	
-//	public Pachube(String APIKEY) {
-//		super();
-//		this.Feed = new PachubeFeed();
-//		client = new PachubeClient(APIKEY);
-//	}
-//	
-//	public Pachube(String username,String password) {
-//		super();
-//		this.Feed = new PachubeFeed();
-//		client = new PachubeClient(username,password);
-//	}
-//
-//	
-//	
-//	
-//
-//
-//	/**
-//	 * This Method is not intended to be used by Users, instead get the Feed
-//	 * object using getFeed() and create Datastreams from there, All changes
-//	 * will be made to the online Feed.
-//	 * 
-//	 * @param feed
-//	 * @param s
-//	 * @return
-//	 * @throws PachubeException
-//	 */
-////	public boolean createDatastream(int feed, String s) throws PachubeException {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/feeds/"
-////				+ feed + "/datastreams/");
-////		hr.setMethod(HttpMethod.POST);
-////		addAuthheader(hr);
-////		hr.setBody(s);
-////		HttpResponse g = client.send(hr);
-////
-////		if (g.getHeaderItem("Status").equals("HTTP/1.1 201 Created")) {
-////			return true;
-////		} else {
-////			throw new PachubeException(g.getHeaderItem("Status"));
-////		}
-////	}
-//
-//	/**
-//	 * This Method is not intended to be used by Users, instead get the Feed
-//	 * object using getFeed() and delete Datastreams from there, All changes
-//	 * will be made to the online Feed.
-//	 * 
-//	 * @param feed
-//	 * @param datastream
-//	 * @return
-//	 */
-////	public HttpResponse deleteDatastream(int feed, int datastream) {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/feeds/"
-////				+ feed + "/datastreams/" + datastream);
-////		hr.setMethod(HttpMethod.DELETE);
-////		addAuthheader(hr);
-////		return client.send(hr);
-////	}
-//
-//	/**
-//	 * This Method is not intended to be used by Users, instead get the Feed
-//	 * object using getFeed() and update Datastreams from there, All changes
-//	 * will be made to the online Feed.
-//	 * 
-//	 * @param feed
-//	 * @param datastream
-//	 * @param s
-//	 * @return
-//	 */
-////	public HttpResponse updateDatastream(int feed, int datastream, String s) {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/feeds/"
-////				+ feed + "/datastreams/" + datastream);
-////		hr.setMethod(HttpMethod.PUT);
-////		addAuthheader(hr);
-////		hr.setBody(s);
-////		System.out.println(hr.getHttpCommand());
-////		return client.send(hr);
-////	}
-//
-//	/**
-//	 * This Method is not intended to be used by Users, instead get the Feed
-//	 * object using getFeed() and get Datastreams from there.
-//	 * 
-//	 * @param feed
-//	 * @param datastream
-//	 * @return
-//	 */
-////	public HttpResponse getDatastream(int feed, int datastream) {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/feeds/"
-////				+ feed + "/datastreams/" + datastream + ".xml");
-////		hr.setMethod(HttpMethod.GET);
-////		addAuthheader(hr);
-////		return client.send(hr);
-////	}
-////
-//	/**
-//	 * This Method is not intended to be used by Users, instead get the Feed
-//	 * object using getFeed() and access Datastream history from there.
-//	 * 
-//	 * @param feed
-//	 * @param datastream
-//	 * @return
-//	 */
-////	public Double[] getDatastreamHistory(int feed, int datastream) {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/feeds/" + feed
-////				+ "/datastreams/" + datastream + "/history.csv");
-////		hr.setMethod(HttpMethod.GET);
-////		addAuthheader(hr);
-////		String str = client.send(hr).getBody();
-////		String[] arr = str.split(",");
-////		Double[] arr1 = new Double[arr.length];
-////		for (int i = 0; i < arr.length; i++) {
-////			arr1[i] = Double.parseDouble(arr[1]);
-////		}
-////
-////		return arr1;
-////
-////	}
-//
-//	/**
-//	 * This Method is not intended to be used by Users, instead get the Feed
-//	 * object using getFeed() and access Datastream archive from there.
-//	 * 
-//	 * @param feed
-//	 * @param datastream
-//	 * @return
-//	 */
-////	public String[] getDatastreamArchive(int feed, int datastream) {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/feeds/" + feed
-////				+ "/datastreams/" + datastream + "/archive.csv");
-////		hr.setMethod(HttpMethod.GET);
-////		addAuthheader(hr);
-////		String str = client.send(hr).getBody();
-////		return str.split("\n");
-////
-////	}
-//
-//	/**
-//	 * Creates a Trigger on pachube from the object provided.
-//	 * 
-//	 * @param t
-//	 * @return
-//	 * @throws PachubeException
-//	 */
-////	public String createTrigger(Trigger t) throws PachubeException {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/triggers");
-////		hr.setMethod(HttpMethod.POST);
-////		addAuthheader(hr);
-////		hr.setBody(t.toString());
-////		HttpResponse h = client.send(hr);
-////		if (h.getHeaderItem("Status").equals("HTTP/1.1 201 Created")) {
-////			return h.getHeaderItem("Location");
-////		} else {
-////			throw new PachubeException(h.getHeaderItem("Status"));
-////		}
-////
-////	}
-////	
-//	/**
-//	 * Gets a Trigger from pachube specified by the parameter
-//	 * 
-//	 * @param id id of the Trigger to get
-//	 */
-////	public Trigger getTrigger(int id) throws PachubeException {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/triggers/"+id+".xml");
-////		hr.setMethod(HttpMethod.GET);
-////		addAuthheader(hr);
-////		HttpResponse h = client.send(hr);
-////		
-////		return PachubeFactory.toTrigger(h.getBody());
-////
-////	}
-//	
-//	/**
-//	 * Gets all the Triggers owned by the authenticating user
-//	 * 
-//	 * @param id id of the Trigger to get
-//	 */
-////	public Trigger[] getTriggers() throws PachubeException {
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/triggers/");
-////		hr.setMethod(HttpMethod.GET);
-////		addAuthheader(hr);
-////		HttpResponse h = client.send(hr);
-////		
-////		return PachubeFactory.toTriggers(h.getBody());
-////
-////	}
-//	
-//	
-//	
-//	
-//	public Group[] getGroups() throws PachubeException {
-//		try {
-//			return PachubeFactory.toGroups(client.httpGet("http://api.cosm.com/v2/groups.json"));				
-//		} catch ( Exception e) {		
-//			e.printStackTrace();
-//			throw new PachubeException(e.getMessage());
-//		}		
-//	}
-//
-//	public Group getGroup(String groupid) throws PachubeException {
-//		try {
-//			return PachubeFactory.toGroup(client.httpGet("http://api.cosm.com/v2/groups/"+groupid+".json"));				
-//		} catch ( Exception e) {		
-//			e.printStackTrace();
-//			throw new PachubeException(e.getMessage());
-//		}		
-//	}
-//
-//	public HttpResponse deleteGroup(String groupid) throws PachubeException {
-//		try {
-//			return client.httpDelete("http://api.cosm.com/v2/groups/"+groupid);				
-//		} catch ( Exception e) {		
-//			e.printStackTrace();
-//			throw new PachubeException(e.getMessage());
-//		}		
-//	}
-//
-//	
-////	public HttpResponse updateGroup(int id,Group g){
-////		HttpRequest hr = new HttpRequest("http://api.cosm.com/v2/groups/"+id);
-////		hr.setMethod(HttpMethod.PUT);
-////		addAuthheader(hr);
-////		
-////		try {			
-////			JSONObject jo = new JSONObject();
-////			jo.putOpt("group_id", g.getGroupid());
-////			jo.putOpt("label",g.getLabel());
-////			for(int i=0;(i<g.getFeeds().length);i++) {
-////				jo.accumulate("feeds",g.getFeeds()[i]);
-////			}
-////			for(int j=0;(j<g.getMembers().length);j++) {
-////				jo.accumulate("members",g.getFeeds()[j]);
-////			}
-////			hr.setBody(jo.toString());
-////		} catch ( Exception e ) {
-////			
-////		}
-////		return client.send(hr);		
-////	}
-////
-////	
-////	/**
-////	 * Deletes a Trigger from pachube
-////	 * @param id id of the trigger to delete
-////	 * @return
-////	 */
-////	public HttpResponse deleteTrigger(int id){
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/triggers/"+id);
-////		hr.setMethod(HttpMethod.DELETE);
-////		addAuthheader(hr);
-////		return client.send(hr);
-////		
-////	}
-////	
-////	/**
-////	 * Updates a Trigger on pachube
-////	 * @param id id of the triggerto update
-////	 * @param t Trigger object of the new trigger
-////	 * @return
-////	 */
-////	public HttpResponse updateTrigger(int id,Trigger t){
-////		HttpRequest hr = new HttpRequest("http://www.pachube.com/api/triggers/"+id);
-////		hr.setMethod(HttpMethod.PUT);
-////		addAuthheader(hr);
-////		hr.setBody(t.toString());
-////		return client.send(hr);
-////		
-////	}
-////
-////	/**
-////	 * Gets a Pachube graph of the datastream
-////	 * 
-////	 * @param feedID
-////	 *            ID of feed the datastream belongs to.
-////	 * @param streamID
-////	 *            ID of the stream to graph
-////	 * @param width
-////	 *            Width of the image
-////	 * @param height
-////	 *            Height of the image
-////	 * @param c
-////	 *            Color of the line
-////	 * @return String which can be used to form a URL Object.
-////	 */
-////	public String showGraph(int feedID, int streamID, int width, int height,
-////			Color c) {
-////		String hexRed = Integer.toHexString(c.getRed()).toString();
-////		String hexGreen = Integer.toHexString(c.getGreen()).toString();
-////		String hexBlue = Integer.toHexString(c.getBlue()).toString();
-////		if (hexRed.length() == 1) {
-////			hexRed = "0" + hexRed;
-////		}
-////
-////		if (hexGreen.length() == 1) {
-////			hexGreen = "0" + hexGreen;
-////		}
-////		if (hexBlue.length() == 1) {
-////			hexBlue = "0" + hexBlue;
-////		}
-////		String hex = (hexRed + hexGreen + hexBlue).toUpperCase();
-////
-////		return "http://www.pachube.com/feeds/" + feedID + "/datastreams/"
-////				+ streamID + "/history.png?w=" + width + "&h=" + height + "&c="
-////				+ hex;
-////
-////	}
-//
-//}

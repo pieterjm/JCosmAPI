@@ -507,4 +507,160 @@ public class CosmFactory {
 		}
 	}
 	
-}
+	public static Apikey toApikey(String s) throws CosmException {
+		try {
+			return CosmFactory.toApikey(new JSONObject(s));
+		} catch ( Exception e ) {
+			throw new CosmException("could not create apikey from string");
+		}
+	}
+	
+	private static Apikey toApikey(JSONObject jo) throws CosmException {
+		try {
+			Apikey apikey = new Apikey();
+			
+			String key = jo.optString("api_key");
+			if ( key != null ) {
+				apikey.setApikey(key);
+			} else {
+				throw new JSONException("Apikey is missing from JSON Object");
+			}
+			
+			Boolean private_access = jo.optBoolean("private_access");
+			if ( private_access != null ) {
+				apikey.setPrivateAccess(private_access);
+			}
+			
+			String label = jo.optString("label");
+			if ( label != null ) {
+				apikey.setLabel(label);
+			} else {
+				throw new JSONException("label missing in JSONObject");
+			}
+			
+			String expires_at = jo.optString("expires_at");
+			if ( expires_at != null ) {
+				apikey.setExpiresAt(expires_at);
+			}
+			
+			JSONArray ja = jo.optJSONArray("permissions");
+			if ( ja != null ) {
+				Permission[] permissions = new Permission[ja.length()];
+				for(int i=0;(i<ja.length());i++) {
+					permissions[i] = toPermission(ja.getJSONObject(i));
+				}
+			} else {
+				throw new JSONException("permissions missing");
+			}
+			 			
+			
+			return apikey;
+		} catch ( Exception e ) {
+			throw new CosmException(e.getMessage());
+		}
+	}
+	
+	private static Permission toPermission(JSONObject jo) throws CosmException {
+		try {
+			Permission permission = new Permission();
+		
+			// access method
+			JSONArray jaa = jo.optJSONArray("access_methods");
+			if ( jaa != null ) {
+				String[] ams = toStringArray(jaa);
+				AccessMethod[] accessMethods = new AccessMethod[ams.length];
+				for(int i=0;(i<ams.length);i++) {
+					accessMethods[i] = AccessMethod.valueOf(ams[i]);
+				}
+				permission.setAccessMethods(accessMethods);
+			} else {
+				throw new JSONException("access_method is missing");
+			}
+
+			// sourceIp;
+			String source_ip = jo.optString("source_ip");
+			if ( source_ip != null ) {
+				permission.setSourceIp(source_ip);
+			} 
+			
+			// referer
+			String referer = jo.optString("referer");
+			if ( referer != null ) {
+				permission.setReferer(referer);
+			}
+			
+			String minimum_interval = jo.optString("minimum_interval");
+			if ( minimum_interval != null ) {
+				permission.setMinimumInterval(minimum_interval);
+			}
+			
+			String label = jo.optString("label");
+			if ( label != null ) {
+				permission.setLabel(label);
+			}
+			
+			JSONArray jar = jo.optJSONArray("resources");
+			if ( jar != null ) {
+				Resource[] resources = new Resource[jar.length()];
+				for(int i=0;(i<jar.length());i++) {
+					resources[i] = toResource(jar.getJSONObject(i));
+				}
+				permission.setResources(resources);
+			}
+			
+			
+			return permission;
+		} catch ( JSONException e ) {
+			throw new  CosmException(e.getMessage());
+		}
+	}
+	
+	private static Resource toResource(JSONObject jo) throws CosmException {
+		try {
+			Resource resource = new Resource();
+			
+			String feed_id = jo.optString("feed_id");
+			String datastream_id = jo.optString("datastream_id");
+			
+			if (( datastream_id != null)&&(feed_id == null)) {
+				throw new JSONException("datastream_id != null and feed_id == null in JSON object");
+			}
+			
+			if ( feed_id != null ) {
+				resource.setFeedId(feed_id);
+			}
+			
+			if ( datastream_id != null ) {
+				resource.setDatastreamId(datastream_id);
+			}
+			
+			return resource;
+		} catch ( Exception e ) {
+			throw new CosmException(e.getMessage());
+		}
+	}
+	
+	
+	public static Apikey[] toApikeys(String s) throws CosmException {
+		try {
+			return CosmFactory.toApikeys(new JSONObject(s));
+		} catch ( Exception e ) {
+			throw new CosmException("could not create apikeys from string");
+		}		
+	}
+	
+	private static Apikey[] toApikeys(JSONObject jo) throws CosmException {
+		try {
+			ArrayList<Apikey> al = new ArrayList<Apikey>();
+			JSONArray ja = jo.getJSONArray("keys");
+			for(int i=0;(i<ja.length());i++) {
+				al.add(CosmFactory.toApikey(ja.getJSONObject(i)));
+			}
+			return al.toArray(new Apikey[0]);
+		} catch ( Exception e ) {
+			throw new CosmException(e.getMessage());
+		}
+	}
+
+	
+} 
