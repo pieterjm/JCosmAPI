@@ -466,4 +466,45 @@ public class CosmFactory {
 		throw new CosmException("not imnplemented");
 	}
 	
+	public static Datapoint toDatapoint(String s) throws CosmException {
+		try {
+			return CosmFactory.toDatapoint(new JSONObject(s));
+		} catch ( JSONException e ) {
+			throw new CosmException("Could not create JSONObject from string" + e.getMessage());
+		}
+	}
+	
+	public static Datapoint[] toDatapoints(String s) throws CosmException {
+		try {
+			return CosmFactory.toDatapoints(new JSONObject(s));
+		} catch ( JSONException e ) {
+			throw new CosmException("Could not create JSONObject from string" + e.getMessage());
+		}
+	}
+		
+	public static Datapoint toDatapoint(JSONObject jo) throws CosmException {
+		try {
+			Datapoint dp = new Datapoint();
+			dp.setAt(jo.getString("at"));
+			dp.setValue(jo.getString("value"));
+			return dp;
+		} catch ( JSONException e ) {
+			throw new CosmException("error reading jsonobject datapoint: " + e.getMessage());
+		}
+	
+	}
+	
+	public static Datapoint[] toDatapoints(JSONObject jo) throws CosmException {
+		try {
+			ArrayList<Datapoint> dl = new ArrayList<Datapoint>();
+			JSONArray ja = jo.getJSONArray("datapoints");
+			for(int i=0;(i<ja.length());i++) {
+				dl.add(CosmFactory.toDatapoint(ja.getJSONObject(i)));
+			}
+			return dl.toArray(new Datapoint[0]);
+		} catch ( JSONException e ) {
+			throw new CosmException("error reading jsonobject datapoint: " + e.getMessage());
+		}
+	}
+	
 }

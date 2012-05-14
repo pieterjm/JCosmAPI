@@ -1,5 +1,8 @@
 package Cosm;
 
+import java.net.URI;
+import java.net.URL;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -42,10 +45,61 @@ public class Cosm {
 		}
 	}
 
-	// get feeds
-	public Feed[] getFeeds() throws CosmException {
+	// get feeds with more search options
+	// TODO: include lat, lon, distance, and distance_units in query
+	public Feed[] getFeeds(String query,Content content,String tag,String user,String units,Status status,Order order,Boolean show_user) throws CosmException {
+		String q = "";
+		Boolean bAdd = false;
+		
+		if ( query != null ) {		
+			if ( bAdd ) q += '&';
+			q += "q=" + query;
+			bAdd = true;
+		}
+		if ( content != null ) {
+			if ( bAdd ) q += '&';
+			q += "content=" + content.toString();
+			bAdd = true;
+		}		
+		if ( tag != null ) {
+			if ( bAdd ) q += '&';
+			q += "tag=" + tag;
+			bAdd = true;			
+		}
+		if ( user != null ) {
+			if ( bAdd ) q += '&';
+			q += "user=" + user;
+			bAdd = true;
+		}
+		if ( units != null ) {
+			if ( bAdd ) q += '&';
+			q += "units=" + units;
+			bAdd = true;
+		}
+		if ( status != null ) {
+			if ( bAdd ) q += '&';
+			q += "status=" + status.toString();
+			bAdd = true;
+		}		
+		if ( order != null ) {
+			if ( bAdd ) q += '&';
+			q += "order=" + order.toString();
+			bAdd = true;
+		}		
+		if ( show_user != null ) {
+			if ( bAdd ) q += '&';
+			q += "show_user=" + show_user.toString();
+			bAdd = true;			
+		}
+		
+		
+		
 		try {
-			HttpGet hr = new HttpGet("http://api.cosm.com/v2/feeds.json");
+			URI uri = new URI("http","api.cosm.com","/v2/feeds.json",q,null);
+			
+			//System.err.println(uri.toASCIIString());
+			
+			HttpGet hr = new HttpGet(uri);
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
 			if ( statusLine.getStatusCode() == 200) {
@@ -56,8 +110,13 @@ public class Cosm {
 		} catch ( Exception e) {		
 			e.printStackTrace();
 			throw new CosmException(e.getMessage());
-		}
+		}		
+	}
+	
+	// get feeds
+	public Feed[] getFeeds() throws CosmException {
 		//TODO: scrolling is not supported.
+		return getFeeds(null,null,null,null,null,null,null,null);
 	}
 
 	// delete feed
@@ -66,6 +125,7 @@ public class Cosm {
 			HttpDelete hr = new HttpDelete("http://api.cosm.com/v2/feeds/"+feedid);
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
+			client.getBody(response);
 			if ( statusLine.getStatusCode() != 200) {
 				throw new CosmException(response.getStatusLine().toString());				
 			}			
@@ -282,16 +342,83 @@ public class Cosm {
 	
 	
 	// create datapoint
+	public void createDatapoint(Integer feedid,String datastreamid,Datapoint datapoint) throws CosmException {
+		try {
+			HttpPost request = new HttpPost("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints.json");
+			JSONObject jo = new JSONObject();
+			jo.append("datapoints", datapoint.toJSONObject());
+			request.setEntity(new StringEntity(jo.toString()));
+			HttpResponse response = client.execute(request);			
+			StatusLine statusLine = response.getStatusLine();
+			client.getBody(response);
+			if ( statusLine.getStatusCode() != 200 ) {
+				throw new CosmException(response.getStatusLine().toString());								
+			}						
+		} catch ( Exception e) {
+			e.printStackTrace();
+			throw new CosmException("Caught exception in create datapoint" + e.getMessage());
+		}
+			
+	}
+	
+	// create datapoints
+	public void createDatapoints(Integer feedid,String datastreamid,Datapoint[] datapoints) throws CosmException {
+		try {
+			HttpPost request = new HttpPost("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints.json");
+			JSONObject jo = new JSONObject();
+			for(int i=0;(i<datapoints.length);i++) {			
+				jo.append("datapoints", datapoints[i].toJSONObject());
+			}
+			request.setEntity(new StringEntity(jo.toString()));
+			HttpResponse response = client.execute(request);			
+			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
+			if ( statusLine.getStatusCode() != 200 ) {
+				JSONObject ej = new JSONObject(body);
+				throw new CosmException(ej.getString("errors"));
+			}						
+		} catch ( Exception e) {
+			System.err.println(e.getMessage());
+			throw new CosmException("Caught exception in create datapoint" + e.getMessage());
+		}
+			
+	}
 	
 	// update datapoint
-	
-	// listing all datapoints, historical queries
-	
-	// viewing a datapoint
+	// Cosm documentation says, it's a post. It is in fact a PUT
+	public void updateDatapoint(Integer feedid,String datastreamid,Datapoint datapoint) throws CosmException {
+		try {
+			HttpPut request = new HttpPut("http://api.cosm.com/v2/feeds/"+ feedid + "/datastreams/"+datastreamid+"/datapoints/"+datapoint.getAt() + ".json");
+			JSONObject jo = new JSONObject();
+			jo.put("value",datapoint.getValue());
+			request.setEntity(new StringEntity(jo.toString()));
+			HttpResponse response = client.execute(request);			
+			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
+			if ( statusLine.getStatusCode() != 200 ) {
+				System.err.println(body);
+				if ( body.length() > 0 ) {
+					JSONObject ej = new JSONObject(body);
+					throw new CosmException(ej.getString("errors"));				
+				} else {
+					throw new CosmException(statusLine.toString());
+				}
+			}
+		} catch ( Exception e) {
+			throw new CosmException("Caught exception in update datapoint: " + e.getMessage());
+		}
+	}
+
+	// get a datapoint
 	
 	// deleting a datapoint
 	
 	// deleting multiple datapoints
+
+	
+	// listing all datapoints, historical queries
+	
+	
 	
 	
 	// apikey
