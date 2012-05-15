@@ -33,12 +33,12 @@ public class User {
 			jo.putOpt("website", website);
 			jo.putOpt("about", about);
 			jo.putOpt("organisation", organisation);
-			jo.putOpt("deliver_email", deliver_email ? deliver_email.toString() : null);
-			jo.putOpt("display_activity", display_activity ? display_activity.toString() : null);
-			jo.putOpt("display_information", display_information ? display_information.toString() : null);
-			jo.putOpt("display_stats", displayStats ? displayStats.toString() : null);
-			jo.putOpt("receive_forum_notifications", receiveForumNotifications ? receiveForumNotifications.toString() : null);
-			jo.putOpt("subscribed_to_mailings", subscribedToMailings ? subscribedToMailings.toString() : null);
+			jo.putOpt("deliver_email", deliver_email); // != null ? deliver_email.toString() : null);
+			jo.putOpt("display_activity", display_activity); // != null ? display_activity.toString() : null);
+			jo.putOpt("display_information", display_information); // != null ? display_information.toString() : null);
+			jo.putOpt("display_stats", displayStats); // != null ? displayStats.toString() : null);
+			jo.putOpt("receive_forum_notifications", receiveForumNotifications); // != null ? receiveForumNotifications.toString() : null);
+			jo.putOpt("subscribed_to_mailings", subscribedToMailings); // != null ? subscribedToMailings.toString() : null);
 			jo.putOpt("time_zone",timeZone);
 			for(int i=0;(i<roles.length);i++) {
 				jo.append("roles", roles[i]);
@@ -47,10 +47,11 @@ public class User {
 			jo.putOpt("last_name", lastName);
 			
 			JSONObject jou = new JSONObject();
-			jou.put("user",jou);
+			jou.put("user",jo);
 			
 			return jou;
 		} catch ( Exception e ) {
+			e.printStackTrace();
 			throw new JSONException(e.getMessage());
 		}
 	}
@@ -177,7 +178,10 @@ public class User {
 	
 	
 	
-	
+	public User() {
+		this.roles = new String[0];
+		this.createable_roles = new String[0];
+	}
 	
 	
 	

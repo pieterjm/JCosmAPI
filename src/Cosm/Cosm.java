@@ -114,10 +114,11 @@ public class Cosm {
 		
 		
 		
+		
 		try {
 			URI uri = new URI("http","api.cosm.com","/v2/feeds.json",q,null);
 			
-			//System.err.println(uri.toASCIIString());
+			System.err.println(uri.toASCIIString());
 			
 			HttpGet hr = new HttpGet(uri);
 			HttpResponse response = client.execute(hr);
@@ -496,6 +497,8 @@ public class Cosm {
 	
 	// listing all datapoints, historical queries
 	public Datapoint[] getDatapoints(Integer feedid, String datastreamid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type) throws CosmException {
+		//TODO: check if all combinations are valid is missing
+		//TODO: date checking here?
 		try {
 			String url = "http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+".json?";
 			
@@ -531,12 +534,16 @@ public class Cosm {
 				bAdd = true;
 			}
 			
+			//System.err.println(url);
+			
 			HttpGet request = new HttpGet(url);
 			HttpResponse response = client.execute(request);
 			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() == 200 ) {
-				return CosmFactory.toDatapoints(client.getBody(response));
+				return CosmFactory.toDatapoints(body);
 			} else {
+				System.err.println(body);
 				throw new HttpException(statusLine.toString());
 			}
 		} catch ( Exception e ) {
@@ -792,7 +799,9 @@ public class Cosm {
 			StatusLine statusLine = response.getStatusLine();
 			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() == 201 ) {
-				if ( body.length() > 0 ) {
+				return;
+			} else {
+				if ((body!=null)&&(body.length() > 0 )) {					
 					JSONObject ej = new JSONObject(body);
 					throw new CosmException(ej.getString("errors"));				
 				} else {
@@ -800,7 +809,8 @@ public class Cosm {
 				}
 			}
 		} catch ( Exception e) {
-			throw new CosmException("Caught exception in update trigger: " + e.getMessage());
+			e.printStackTrace();
+			throw new CosmException("Caught exception in update createUser: " + e.getMessage());
 		}
 	}
 		

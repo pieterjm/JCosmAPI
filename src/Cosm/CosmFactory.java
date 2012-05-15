@@ -547,6 +547,7 @@ public class CosmFactory {
 	
 	public static Datapoint[] toDatapoints(String s) throws CosmException {
 		try {
+//			System.err.println(s);
 			return CosmFactory.toDatapoints(new JSONObject(s));
 		} catch ( JSONException e ) {
 			throw new CosmException("Could not create JSONObject from string" + e.getMessage());
