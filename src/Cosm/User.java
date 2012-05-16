@@ -1,5 +1,6 @@
 package Cosm;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,9 +41,12 @@ public class User {
 			jo.putOpt("receive_forum_notifications", receiveForumNotifications); // != null ? receiveForumNotifications.toString() : null);
 			jo.putOpt("subscribed_to_mailings", subscribedToMailings); // != null ? subscribedToMailings.toString() : null);
 			jo.putOpt("time_zone",timeZone);
+			
+			JSONArray ja = new JSONArray();
 			for(int i=0;(i<roles.length);i++) {
-				jo.append("roles", roles[i]);
+				ja.put(roles[i]);
 			}
+			jo.put("roles", ja);
 			jo.putOpt("first_name", firstName);
 			jo.putOpt("last_name", lastName);
 			

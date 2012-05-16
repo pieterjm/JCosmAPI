@@ -2,6 +2,7 @@ package Cosm;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class Apikey {
 	private String label;
@@ -66,9 +67,11 @@ public class Apikey {
 			jo.put("private_access", privateAccess.toString());
 		}
 		
+		JSONArray ja = new JSONArray();
 		for(int i=0;(i<permissions.length);i++) {
-			jo.append("permissions", permissions[i].toJSONObject());
+			ja.put(permissions[i].toJSONObject());
 		}
+		jo.put("permissions", ja);
 		
 		
 		return jo;

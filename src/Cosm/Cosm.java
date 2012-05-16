@@ -12,6 +12,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import Cosm.Client.CosmClient;
 
@@ -310,7 +311,12 @@ public class Cosm {
 			HttpPost request = new HttpPost("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams.json");
 			JSONObject jo = new JSONObject();
 			jo.put("version", Cosm.VERSION);
-			jo.append("datastreams", datastream.toJSONObject());
+			
+			JSONArray ja = new JSONArray();
+			ja.put(datastream.toJSONObject());
+			jo.put("datastreams",ja);
+			
+			
 			request.setEntity(new StringEntity(jo.toString()));
 			HttpResponse response = client.execute(request);
 			StatusLine statusLine = response.getStatusLine();
@@ -367,7 +373,9 @@ public class Cosm {
 		try {
 			HttpPost request = new HttpPost("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints.json");
 			JSONObject jo = new JSONObject();
-			jo.append("datapoints", datapoint.toJSONObject());
+			JSONArray ja = new JSONArray();
+			ja.put(datapoint.toJSONObject());
+			jo.put("datapoints", ja);
 			request.setEntity(new StringEntity(jo.toString()));
 			HttpResponse response = client.execute(request);			
 			StatusLine statusLine = response.getStatusLine();
@@ -387,9 +395,12 @@ public class Cosm {
 		try {
 			HttpPost request = new HttpPost("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints.json");
 			JSONObject jo = new JSONObject();
+			
+			JSONArray ja = new JSONArray();
 			for(int i=0;(i<datapoints.length);i++) {			
-				jo.append("datapoints", datapoints[i].toJSONObject());
+				ja.put(datapoints[i].toJSONObject());				
 			}
+			jo.put("datapoints", ja);
 			request.setEntity(new StringEntity(jo.toString()));
 			HttpResponse response = client.execute(request);			
 			StatusLine statusLine = response.getStatusLine();

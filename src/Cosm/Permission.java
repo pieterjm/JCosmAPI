@@ -2,6 +2,7 @@ package Cosm;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class Permission {
 	private String sourceIp;
@@ -61,11 +62,20 @@ public class Permission {
 		jo.putOpt("minimum_interval", this.minimumInterval);
 		jo.putOpt("label", this.label);
 		
-		for(int i=0;(i<resources.length);i++) {
-			jo.append("resources", resources[i].toJSONObject());
+		{
+			JSONArray ja = new JSONArray();
+			for(int i=0;(i<resources.length);i++) {
+				ja.put(resources[i].toJSONObject());
+			}
+			jo.put("resources", ja);
 		}
-		for(int i=0;(i<accessMethods.length);i++) {
-			jo.append("access_methods", accessMethods[i].toString());
+		
+		{
+			JSONArray ja = new JSONArray();
+			for(int i=0;(i<accessMethods.length);i++) {
+				ja.put(accessMethods[i].toString());
+			}
+			jo.put("access_methods", ja);
 		}
 	
 		return jo;

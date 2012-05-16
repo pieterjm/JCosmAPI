@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import javax.xml.ws.Response;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
