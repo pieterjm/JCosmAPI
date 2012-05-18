@@ -24,6 +24,11 @@ public class Feed {
 	private User user;
 	private Datastream[] datastreams; //
 
+	@Override
+	public String toString() {
+		return this.title;
+	}
+	
 	public String getDescription() {
 		return description;
 	}

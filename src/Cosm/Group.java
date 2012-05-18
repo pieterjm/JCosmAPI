@@ -11,6 +11,11 @@ public class Group {
 	private Integer[] feeds;
 	private String owner;
 	
+	@Override
+	public String toString() {
+		return this.label;
+	}
+	
 	public Group() {
 		owner = "";
 		groupid = "";
