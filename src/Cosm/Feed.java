@@ -23,12 +23,27 @@ public class Feed {
 	private Boolean privateFeed; //
 	private User user;
 	private Datastream[] datastreams; //
+	private String email;
 
 	@Override
 	public String toString() {
 		return this.title;
 	}
 	
+	
+	
+	public String getEmail() {
+		return email;
+	}
+
+
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+
+
 	public String getDescription() {
 		return description;
 	}
@@ -220,7 +235,7 @@ public class Feed {
 		}
 		jo.put("datastreams", jda); //
 		jo.putOpt("private", this.privateFeed); 
-				
+		jo.putOpt("email", this.email);
 		return jo;
 	}
 	

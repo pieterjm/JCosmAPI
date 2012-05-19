@@ -22,6 +22,7 @@ import org.w3c.dom.NodeList;
 
 
 
+
 public class CosmFactory {
 	
 	
@@ -300,6 +301,11 @@ public class CosmFactory {
 		String errors = jo.optString("errors");
 		if ( errors != null ) {
 			feed.setErrors(errors);
+		}
+		
+		String email = jo.optString("email");
+		if ( email != null ) {
+			feed.setEmail(email);
 		}
 		
 		Integer id = jo.optInt("id");

@@ -15,6 +15,11 @@ public class Datastream {
 	private Unit unit;
 	private String at;
 	
+	@Override
+	public String toString() {
+		return this.id;
+	}
+	
 	public Datastream() {
 		tags = new String[0];
 	}

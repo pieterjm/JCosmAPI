@@ -7,11 +7,11 @@ public class Location {
 	
 	private String name;
 	
-	private double lat;
+	private Double lat;
 	
-	private double lon;
+	private Double lon;
 	
-	private double elevation;
+	private Double elevation;
 	
 	private Exposure exposure;
 	
@@ -65,35 +65,9 @@ public class Location {
 		}
 	}
 	
-	public String toXML(){
-		String ret = "";
-		ret = "<location ";
-		
-		if(this.domain != null){
-			ret = ret + "domain=\""+this.domain+"\" ";
-		}
-		
-		if(this.exposure != null){
-			ret = ret + "exposure=\""+ this.exposure + "\" ";
-		}
-		
-		if(this.disposition != null){
-			ret = ret + "disposition=\""+ this.disposition +"\" ";
-		}
-		ret = ret + ">\n\t\t";
-		ret = ret + "<name>"+ this.name + "</name>\n\t\t";
-		ret = ret + "<lat>"+ this.lat + "</lat>\n\t\t";
-		ret = ret + "<lon>"+ this.lon + "</lon>\n\t\t";
-		ret = ret + "<ele>"+ this.elevation + "</ele>\n\t";
-		ret = ret + "</location>";
-		return ret;
-	}
-
 	@Override
 	public String toString() {
-		return "Location [disposition=" + disposition + ", domain=" + domain
-				+ ", elevation=" + elevation + ", exposure=" + exposure
-				+ ", lat=" + lat + ", lon=" + lon + ", name=" + name + "]";
+		return name;
 	}
 
 	/**
@@ -113,42 +87,42 @@ public class Location {
 	/**
 	 * @return the lat
 	 */
-	public double getLat() {
+	public Double getLat() {
 		return lat;
 	}
 
 	/**
 	 * @param lat the lat to set
 	 */
-	public void setLat(double lat) {
+	public void setLat(Double lat) {
 		this.lat = lat;
 	}
 
 	/**
 	 * @return the lon
 	 */
-	public double getLon() {
+	public Double getLon() {
 		return lon;
 	}
 
 	/**
 	 * @param lon the lon to set
 	 */
-	public void setLon(double lon) {
+	public void setLon(Double lon) {
 		this.lon = lon;
 	}
 
 	/**
 	 * @return the elevation
 	 */
-	public double getElevation() {
+	public Double getElevation() {
 		return elevation;
 	}
 
 	/**
 	 * @param elevation the elevation to set
 	 */
-	public void setElevation(double elevation) {
+	public void setElevation(Double elevation) {
 		this.elevation = elevation;
 	}
 
