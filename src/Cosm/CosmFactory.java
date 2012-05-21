@@ -575,11 +575,14 @@ public class CosmFactory {
 	private static Datapoint[] toDatapoints(JSONObject jo) throws CosmException {
 		try {
 			ArrayList<Datapoint> dl = new ArrayList<Datapoint>();
-			JSONArray ja = jo.getJSONArray("datapoints");
-			for(int i=0;(i<ja.length());i++) {
-				dl.add(CosmFactory.toDatapoint(ja.getJSONObject(i)));
+			JSONArray ja = jo.optJSONArray("datapoints");
+			if ( ja != null ) {
+				for(int i=0;(i<ja.length());i++) {
+					dl.add(CosmFactory.toDatapoint(ja.getJSONObject(i)));
+				}
+				return dl.toArray(new Datapoint[0]);
 			}
-			return dl.toArray(new Datapoint[0]);
+			return new Datapoint[0];
 		} catch ( JSONException e ) {
 			throw new CosmException("error reading jsonobject datapoint: " + e.getMessage());
 		}
