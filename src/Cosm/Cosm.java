@@ -250,7 +250,8 @@ public class Cosm {
 	public void updateGroup(Group group) throws CosmException {
 		try {
 			HttpPut hr = new HttpPut("http://api.cosm.com/v2/groups/" + group.getGroupid() + ".json");
-			hr.setEntity(new StringEntity(group.toJSONObject().toString()));
+			String requestBody = group.toJSONObject().toString();
+			hr.setEntity(new StringEntity(requestBody));
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
 			String body = client.getBody(response);
