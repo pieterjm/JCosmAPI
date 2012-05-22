@@ -253,7 +253,8 @@ public class Cosm {
 			hr.setEntity(new StringEntity(group.toJSONObject().toString()));
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
-			if ( statusLine.getStatusCode() != 200 ) {
+			String body = client.getBody(response);
+			if (( statusLine.getStatusCode() != 200 )&&(  statusLine.getStatusCode() != 201)) {
 				throw new CosmException(response.getStatusLine().toString());																
 			}
 		} catch ( Exception e) {
