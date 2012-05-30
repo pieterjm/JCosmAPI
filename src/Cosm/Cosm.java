@@ -2,6 +2,7 @@ package Cosm;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -118,9 +119,6 @@ public class Cosm {
 		
 		try {
 			URI uri = new URI("http","api.cosm.com","/v2/feeds.json",q,null);
-			
-			System.err.println(uri.toASCIIString());
-			
 			HttpGet hr = new HttpGet(uri);
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
@@ -412,7 +410,6 @@ public class Cosm {
 				throw new CosmException(ej.getString("errors"));
 			}						
 		} catch ( Exception e) {
-			System.err.println(e.getMessage());
 			throw new CosmException("Caught exception in create datapoint" + e.getMessage());
 		}
 			
@@ -430,7 +427,6 @@ public class Cosm {
 			StatusLine statusLine = response.getStatusLine();
 			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() != 200 ) {
-				System.err.println(body);
 				if ( body.length() > 0 ) {
 					JSONObject ej = new JSONObject(body);
 					throw new CosmException(ej.getString("errors"));				
@@ -507,11 +503,13 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}	
 	}
+
 	
 	// listing all datapoints, historical queries
-	public Datapoint[] getDatapoints(Integer feedid, String datastreamid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type) throws CosmException {
+	public Datapoint[] getDatapoints(Integer feedid, String datastreamid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type, int per_page,String timezone) throws CosmException {
 		//TODO: check if all combinations are valid is missing
 		//TODO: date checking here?
+		//TODO: get pagination timeout 
 		try {
 			String url = "http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+".json?";
 			
@@ -547,18 +545,45 @@ public class Cosm {
 				bAdd = true;
 			}
 			
-			//System.err.println(url);
-			
-			HttpGet request = new HttpGet(url);
-			HttpResponse response = client.execute(request);
-			StatusLine statusLine = response.getStatusLine();
-			String body = client.getBody(response);
-			if ( statusLine.getStatusCode() == 200 ) {
-				return CosmFactory.toDatapoints(body);
-			} else {
-				System.err.println(body);
-				throw new HttpException(statusLine.toString());
+			if ( timezone != null ) {
+				if ( bAdd ) url += '&';			
+				url += "timezone=" + timezone;				
 			}
+			
+			if ( bAdd ) url += '&';			
+			url += "per_page=" + per_page;
+
+
+			
+			ArrayList<Datapoint> datapoints = new ArrayList<Datapoint>();
+			
+			boolean bContinue = true;
+			int page = 1;
+			while ( bContinue ) {
+				
+				
+				HttpGet request = new HttpGet(url + "&page=" + page);				 
+				HttpResponse response = client.execute(request);
+				StatusLine statusLine = response.getStatusLine();
+				String body = client.getBody(response);
+				if ( statusLine.getStatusCode() == 200 ) {
+					Datapoint[] newDatapoints = CosmFactory.toDatapoints(body);
+					if ( newDatapoints.length < per_page ) {
+						bContinue = false;
+					} else {
+						page++;
+					}
+
+					for ( Datapoint datapoint : newDatapoints ) {
+						datapoints.add(datapoint);
+					}
+				} else {
+					throw new CosmException(statusLine.toString() + body);
+				}
+			}
+			
+			return datapoints.toArray(new Datapoint[datapoints.size()]);
+
 		} catch ( Exception e ) {
 			e.printStackTrace();
 			throw new CosmException(e.getMessage());			
@@ -718,7 +743,6 @@ public class Cosm {
 			StatusLine statusLine = response.getStatusLine();
 			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() != 200 ) {
-				System.err.println(body);
 				if ( body.length() > 0 ) {
 					JSONObject ej = new JSONObject(body);
 					throw new CosmException(ej.getString("errors"));				
@@ -790,7 +814,6 @@ public class Cosm {
 			StatusLine statusLine = response.getStatusLine();
 			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() != 200 ) {
-				System.err.println(body);
 				if ( body.length() > 0 ) {
 					JSONObject ej = new JSONObject(body);
 					throw new CosmException(ej.getString("errors"));				

@@ -23,6 +23,7 @@ import org.w3c.dom.NodeList;
 
 
 
+
 public class CosmFactory {
 	
 	
@@ -57,53 +58,55 @@ public class CosmFactory {
 			throw new JSONException("no user element found in json object");
 		}
 		
-		String first_name = ju.optString("first_name");
-		if ( first_name != null ) {
-			user.setFirstName(first_name);
+		
+		Integer total_api_access_count = ju.optInt("total_api_access_count");
+		if ( total_api_access_count != null ) {
+			user.setTotalApiAccesCount(total_api_access_count);
 		}
 		
-		String login = ju.optString("login");
-		if ( login != null ) {
-			user.setLogin(login);
-		} else {
-			throw new JSONException("required attributed login not found in user");
+		JSONArray createable_roles = ju.optJSONArray("createable_roles");
+		if ( createable_roles != null ) {
+			user.setCreateableRoles(CosmFactory.toStringArray(createable_roles));
 		}
 		
-		String last_name = ju.optString("last_name");
-		if ( last_name != null ) {
-			user.setLastName(last_name);
+		Integer datastreams_count = ju.optInt("datastreams_count");
+		if ( datastreams_count != null ) {
+			user.setDatastreamsCount(datastreams_count);
 		}
 		
-		String email = ju.optString("email");
-		if ( email != null ) {
-			user.setEmail(email);
+		String email_hash = ju.optString("email_hash");
+		if ( email_hash != null ) {
+			user.setEmailHash(email_hash);
 		}
 		
-		JSONArray roles = ju.optJSONArray("roles");
-		if ( roles != null ) {
-			user.setRoles(CosmFactory.toStringArray(roles));
-		} else {
-			throw new JSONException("required parameter roles is missing");
+		Boolean provisioning_enabled = ju.optBoolean("provisioning_enabled");
+		if ( provisioning_enabled != null ) {
+			user.setProvisioningEnabled(provisioning_enabled);
 		}
 		
-		String api_key = ju.optString("api_key");
-		if ( api_key != null ) {
-			user.setApiKey(api_key);
+		Integer feeds_count = ju.optInt("feeds_count");
+		if ( feeds_count != null ) {
+			user.setFeedsCount(feeds_count);
 		}
 		
-		String full_name = ju.optString("full_name");
-		if ( full_name != null ) {
-			user.setFullName(full_name);
+		Integer datastreams_allowed = ju.optInt("datastreams_allowed");
+		if ( datastreams_allowed != null ) {
+			user.setDatastreamsAllowed(datastreams_allowed);
+		}
+
+		Integer daily_api_access_count = ju.optInt("daily_api_access_count");
+		if ( daily_api_access_count != null ) {
+			user.setDailyApiAccessCount(daily_api_access_count);
+		}
+
+		String user_state = ju.optString("state");
+		if ( user_state != null ) {
+			user.setState(UserState.valueOf(user_state));
 		}
 		
-		String about = ju.optString("about");
-		if ( about != null ) {
-			user.setAbout(about);
-		}
-		
-		String deliver_email = ju.optString("deliver_email");
-		if ( deliver_email != null ) {
-			user.setDeliverEmail(Boolean.valueOf(deliver_email));
+		String display_stats = ju.optString("display_stats");
+		if ( display_stats != null ) {
+			user.setDisplayStats(Boolean.valueOf(display_stats));
 		}
 		
 		String display_activity = ju.optString("display_activity");
@@ -116,14 +119,9 @@ public class CosmFactory {
 			user.setDisplayInformation(Boolean.valueOf(display_information));
 		}
 		
-		String display_stats = ju.optString("display_stats");
-		if ( display_stats != null ) {
-			user.setDisplayStats(Boolean.valueOf(display_stats));
-		}
-		
-		String organisation = ju.optString("organisation");
-		if ( organisation != null ) {
-			user.setOrganisation(organisation);
+		String deliver_email = ju.optString("deliver_email");
+		if ( deliver_email != null ) {
+			user.setDeliverEmail(Boolean.valueOf(deliver_email));
 		}
 		
 		String receive_forum_notifications = ju.optString("receive_forum_notifications");
@@ -131,15 +129,24 @@ public class CosmFactory {
 			user.setReceiveForumNotifications(Boolean.valueOf(receive_forum_notifications));
 		}
 		
-
-		JSONArray createable_roles = ju.optJSONArray("createable_roles");
-		if ( createable_roles != null ) {
-			user.setCreateableRoles(CosmFactory.toStringArray(createable_roles));
+		String organisation = ju.optString("organisation");
+		if ( organisation != null ) {
+			user.setOrganisation(organisation);
 		}
 		
-		String subscribed_to_mailings = ju.optString("subscribed_to_mailings");
-		if ( subscribed_to_mailings != null ) {
-			user.setSubscribedToMailings(Boolean.valueOf(subscribed_to_mailings));
+		String about = ju.optString("about");
+		if ( about != null ) {
+			user.setAbout(about);
+		}
+
+		String website = ju.optString("website");
+		if ( website != null ) {
+			user.setWebsite(website);
+		}
+
+		String full_name = ju.optString("full_name");
+		if ( full_name != null ) {
+			user.setFullName(full_name);
 		}
 		
 		String time_zone = ju.optString("time_zone");
@@ -147,10 +154,30 @@ public class CosmFactory {
 			user.setTimeZone(time_zone);
 		}
 		
-		String website = ju.optString("website");
-		if ( website != null ) {
-			user.setWebsite(website);
+		String subscribed_to_mailings = ju.optString("subscribed_to_mailings");
+		if ( subscribed_to_mailings != null ) {
+			user.setSubscribedToMailings(Boolean.valueOf(subscribed_to_mailings));
 		}
+		
+		JSONArray roles = ju.optJSONArray("roles");
+		if ( roles != null ) {
+			user.setRoles(CosmFactory.toStringArray(roles));
+		} else {
+			throw new JSONException("required parameter roles is missing");
+		}
+		
+		String login = ju.optString("login");
+		if ( login != null ) {
+			user.setLogin(login);
+		} else {
+			throw new JSONException("required attributed login not found in user");
+		}
+		
+		String email = ju.optString("email");
+		if ( email != null ) {
+			user.setEmail(email);
+		}
+		
 				
 		return user;
 	}
@@ -282,7 +309,6 @@ public class CosmFactory {
 			JSONObject jo = new JSONObject(s);
 			return toFeed(jo);
 		} catch ( Exception e ) {
-			System.err.println("'" + s + "'");
 			e.printStackTrace();
 			throw new CosmException(e.getMessage());
 		}
@@ -459,8 +485,7 @@ public class CosmFactory {
 			return CosmFactory.toGroups(new JSONArray(s));
 		} catch ( Exception e ) {
 			e.printStackTrace();
-			System.err.println(s);
-			throw new CosmException("not imnplemented");
+			throw new CosmException("Cosm exception in toGroups");
 		}
 	}
 
@@ -554,7 +579,8 @@ public class CosmFactory {
 	public static Datapoint[] toDatapoints(String s) throws CosmException {
 		try {
 //			System.err.println(s);
-			return CosmFactory.toDatapoints(new JSONObject(s));
+			Datapoint[] datapoints = CosmFactory.toDatapoints(new JSONObject(s));
+			return datapoints;
 		} catch ( JSONException e ) {
 			throw new CosmException("Could not create JSONObject from string" + e.getMessage());
 		}
@@ -580,7 +606,7 @@ public class CosmFactory {
 				for(int i=0;(i<ja.length());i++) {
 					dl.add(CosmFactory.toDatapoint(ja.getJSONObject(i)));
 				}
-				return dl.toArray(new Datapoint[0]);
+				return dl.toArray(new Datapoint[ja.length()]);
 			}
 			return new Datapoint[0];
 		} catch ( JSONException e ) {
