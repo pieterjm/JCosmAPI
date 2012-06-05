@@ -1,5 +1,6 @@
 package Cosm;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -135,7 +137,6 @@ public class Cosm {
 	
 	// get feeds
 	public Feed[] getFeeds() throws CosmException {
-		//TODO: scrolling is not supported.
 		return getFeeds(null,null,null,null,null,null,null,null);
 	}
 
@@ -507,9 +508,6 @@ public class Cosm {
 	
 	// listing all datapoints, historical queries
 	public Datapoint[] getDatapoints(Integer feedid, String datastreamid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type, int per_page,String timezone) throws CosmException {
-		//TODO: check if all combinations are valid is missing
-		//TODO: date checking here?
-		//TODO: get pagination timeout 
 		try {
 			String url = "http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+".json?";
 			
@@ -578,15 +576,16 @@ public class Cosm {
 						datapoints.add(datapoint);
 					}
 				} else {
-					throw new CosmException(statusLine.toString() + body);
+					throw new CosmException(statusLine,body);
 				}
 			}
 			
 			return datapoints.toArray(new Datapoint[datapoints.size()]);
 
-		} catch ( Exception e ) {
-			e.printStackTrace();
-			throw new CosmException(e.getMessage());			
+		} catch ( CosmException e ) {
+			throw e;
+		} catch ( IOException e ) {
+			throw new CosmException("IO Exception when communicating with Cosm");
 		}
 	}
 	
@@ -603,11 +602,14 @@ public class Cosm {
 				String key = a[a.length -1];				
 				return this.getApikey(key);
 			} else {
-				throw new Exception(body);
+				throw new CosmException(statusLine,body);
 			}
-		} catch ( Exception e ) {
-			e.printStackTrace();
-			throw new CosmException("error while creating new apikey");
+		} catch ( CosmException e ) {
+			throw e;
+		} catch ( IOException e ) {
+			throw new CosmException("IO Exception when communicating with Cosm");
+		} catch ( JSONException e ) {
+			throw new CosmException("Problem during JSON parsing");
 		}
 	}
 		
@@ -850,8 +852,7 @@ public class Cosm {
 		}
 	}
 		
-	//TODO: get permissions
-	
+	//TODO: get permissions	
 	//TODO: show permissions
 		
 }

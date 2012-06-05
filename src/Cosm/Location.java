@@ -33,11 +33,6 @@ public class Location {
 		return jo;
 	}
 	
-
-	public Location() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
 	
 	public void setLat(String lat){
 		try{

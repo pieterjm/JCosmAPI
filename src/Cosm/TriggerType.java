@@ -11,5 +11,7 @@ public enum TriggerType {
 	lt,
 	lte,
 	eq,
-	change
+	change,
+	live,
+	frozen
 }
