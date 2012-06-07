@@ -10,7 +10,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 
 public class CosmClient {
@@ -24,6 +26,7 @@ public class CosmClient {
 		this.client = new DefaultHttpClient();
 		this.authMethod = AuthMethod.apikey;
 		this.API_KEY = APIKEYS;
+		
 	}
 
 	public CosmClient(String username,String password) {
@@ -45,6 +48,8 @@ public class CosmClient {
 			request.addHeader("Authorization", "Basic " + Base64.encodeBytes(authString.getBytes()));
 			break;
 		}
+		//TODO: the next call has given a null pointer exception, concurrent requests?
+		//http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/index.html
 		return client.execute(request);
 	}
 		

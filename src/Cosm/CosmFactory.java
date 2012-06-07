@@ -405,6 +405,18 @@ public class CosmFactory {
 		if ( version != null ) {
 			feed.setVersion(version);
 		}
+		
+		JSONObject ju = jo.optJSONObject("user");
+		if ( ju != null ){
+			User user = new User();
+			
+			String login = ju.optString("login");			
+			if ( login != null ) {
+				user.setLogin(login);
+			}
+			
+			feed.setUser(user);
+		}
 
 		return feed;
 		

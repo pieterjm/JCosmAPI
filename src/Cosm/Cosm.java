@@ -32,6 +32,10 @@ public class Cosm {
 		client = new CosmClient(username,password);
 	}
 
+	public Feed getFeed(int feedid) throws CosmException {
+		return getFeed(feedid,false);
+	}
+	
 	/**
 	 * Get a feed by its feed identifier
      * 
@@ -39,9 +43,14 @@ public class Cosm {
      * @return Feed which corresponds to the id provided as the parameter
      * @throws CosmException If something goes wrong.
      */
-	public Feed getFeed(int feedid) throws CosmException {
+	public Feed getFeed(int feedid,Boolean show_user) throws CosmException {
 		try {			
-			HttpGet hr = new HttpGet("http://api.cosm.com/v2/feeds/"+feedid+".json");
+			HttpGet hr = null;
+			if ( show_user ) {
+				hr = new HttpGet("http://api.cosm.com/v2/feeds/"+feedid+".json?show_user=true");
+			} else {
+				hr = new HttpGet("http://api.cosm.com/v2/feeds/"+feedid+".json?show_user=false");				
+			}
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
 			if ( statusLine.getStatusCode() == 200) {
