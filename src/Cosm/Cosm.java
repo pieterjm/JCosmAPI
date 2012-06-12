@@ -2,6 +2,7 @@ package Cosm;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -20,6 +21,9 @@ import org.json.JSONArray;
 import Cosm.Client.CosmClient;
 
 public class Cosm {
+	private static final String IO_EXCEPTION_MESSAGE = "Caught IO Exception. Operation failed.";
+	private static final String URL_SYNTAX_EXCEPTION_MESSAGE = "Syntax of the URL is not correct. Operation failed.";
+	
 	public static final String VERSION = "1.0.0";
 	
 	private CosmClient client;
@@ -53,14 +57,14 @@ public class Cosm {
 			}
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() == 200) {
-				return CosmFactory.toFeed(client.getBody(response));				
+				return CosmFactory.toFeed(body);				
 			} else {
-				throw new CosmException(response.getStatusLine().toString());				
+				throw new CosmException(statusLine,body);
 			}			
-		} catch ( Exception e) {		
-			e.printStackTrace();
-			throw new CosmException(e.getMessage());
+		} catch ( IOException e ) {
+			throw new CosmException(IO_EXCEPTION_MESSAGE);
 		}
 	}
 
@@ -133,15 +137,17 @@ public class Cosm {
 			HttpGet hr = new HttpGet(uri);
 			HttpResponse response = client.execute(hr);
 			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() == 200) {
-				return CosmFactory.toFeeds(client.getBody(response));				
+				return CosmFactory.toFeeds(body);				
 			} else {
-				throw new CosmException(response.getStatusLine().toString());				
+				throw new CosmException(statusLine,body);				
 			}			
-		} catch ( Exception e) {		
-			e.printStackTrace();
-			throw new CosmException(e.getMessage());
-		}		
+		} catch ( IOException e) {		
+			throw new CosmException(IO_EXCEPTION_MESSAGE);
+		} catch ( URISyntaxException e ) {
+			throw new CosmException(URL_SYNTAX_EXCEPTION_MESSAGE);
+		}
 	}
 	
 	// get feeds
