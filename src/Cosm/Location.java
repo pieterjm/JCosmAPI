@@ -3,6 +3,7 @@ package Cosm;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 public class Location {
 	
 	private String name;
@@ -19,8 +20,10 @@ public class Location {
 	
 	private Disposition disposition;
 	
+	private Waypoint[] waypoints;
+	
 	public JSONObject toJSONObject() throws JSONException {
-		JSONObject jo = new JSONObject();
+		JSONObject jo = new JSONObject();		
 		
 		jo.putOpt("name", this.name);
 		jo.putOpt("lat",this.lat);
@@ -34,6 +37,22 @@ public class Location {
 	}
 	
 	
+	
+	
+	public Waypoint[] getWaypoints() {
+		return waypoints;
+	}
+
+
+
+
+	public void setWaypoints(Waypoint[] waypoints) {
+		this.waypoints = waypoints;
+	}
+
+
+
+
 	public void setLat(String lat){
 		try{
 			this.lat = Double.parseDouble(lat);

@@ -20,33 +20,57 @@ import org.json.JSONArray;
 
 import Cosm.Client.CosmClient;
 
+/** The Cosm class provides the methods for interfacing with the Cosm (www.cosm.com) webservice.
+ *
+ * @author Pieter Meulenhoff
+ * @version 15 June 2012
+ */
 public class Cosm {
 	private static final String IO_EXCEPTION_MESSAGE = "Caught IO Exception. Operation failed.";
 	private static final String URL_SYNTAX_EXCEPTION_MESSAGE = "Syntax of the URL is not correct. Operation failed.";
-	
+	private static final String NULL_POINTER_EXCEPTION_MESSAGE = "Caught Null pointer exception. Operation failed.";
+
 	public static final String VERSION = "1.0.0";
-	
+
 	private CosmClient client;
 
+	/** Constructor based on access with an Cosm API key
+	 * 
+	 * @param apikey Cosm API key
+	 */
 	public Cosm(String apikey) {
 		client = new CosmClient(apikey);
 	}
 
+	/** Constructor based on access with a username and password
+	 * 
+	 * @param username Cosm username (or login)
+	 * @param password Cosm password
+	 */
 	public Cosm(String username,String password) {
 		client = new CosmClient(username,password);
 	}
 
+
+	/** Retrieve a Feed object from Cosm 
+	 * 
+	 * retrieves a Feed object by its identifier. If no feed was found or a problem occurs, a CosmException is thrown. 
+	 * 
+	 * @param feedid identifier of the Cosm feed
+	 * @return Feed object
+	 * @throws CosmException
+	 */
 	public Feed getFeed(int feedid) throws CosmException {
 		return getFeed(feedid,false);
 	}
-	
+
 	/**
-	 * Get a feed by its feed identifier
-     * 
-     * @param feedid Id of the Pachube feed to retrieve
-     * @return Feed which corresponds to the id provided as the parameter
-     * @throws CosmException If something goes wrong.
-     */
+	 * Get a feed object by its feed identifier
+	 * 
+	 * @param feedid Id of the Cosm feed to retrieve
+	 * @return Feed object which corresponds to the id provided as the parameter
+	 * @throws CosmException If something goes wrong, or if the Feed was not found.
+	 */
 	public Feed getFeed(int feedid,Boolean show_user) throws CosmException {
 		try {			
 			HttpGet hr = null;
@@ -87,7 +111,7 @@ public class Cosm {
 	public Feed[] getFeeds(String query,Content content,String tag,String user,String units,Status status,Order order,Boolean show_user) throws CosmException {
 		String q = "";
 		Boolean bAdd = false;
-		
+
 		if ( query != null ) {		
 			if ( bAdd ) q += '&';
 			q += "q=" + query;
@@ -128,10 +152,10 @@ public class Cosm {
 			q += "show_user=" + show_user.toString();
 			bAdd = true;			
 		}
-		
-		
-		
-		
+
+
+
+
 		try {
 			URI uri = new URI("http","api.cosm.com","/v2/feeds.json",q,null);
 			HttpGet hr = new HttpGet(uri);
@@ -149,7 +173,7 @@ public class Cosm {
 			throw new CosmException(URL_SYNTAX_EXCEPTION_MESSAGE);
 		}
 	}
-	
+
 	// get feeds
 	public Feed[] getFeeds() throws CosmException {
 		return getFeeds(null,null,null,null,null,null,null,null);
@@ -224,9 +248,9 @@ public class Cosm {
 			e.printStackTrace();
 			throw new CosmException("Caught exception in create Group" + e.getMessage());
 		}
-		
+
 	}
-	
+
 	// get group
 	public Group getGroup(String groupid) throws CosmException {
 		try {
@@ -243,7 +267,7 @@ public class Cosm {
 			throw new CosmException("Caught exception in getGroup" + e.getMessage());
 		}
 	}
-		
+
 	// get groups
 	public Group[] getGroups() throws CosmException {
 		try {
@@ -259,7 +283,7 @@ public class Cosm {
 			throw new CosmException("Caught exception in getGroups");
 		}
 	}
-	
+
 	// update group
 	public void updateGroup(Group group) throws CosmException {
 		try {
@@ -277,7 +301,7 @@ public class Cosm {
 			throw new CosmException("Caught exception in update group");
 		}
 	}
-	
+
 	// delete group
 	public void deleteGroup(String groupid) throws CosmException {
 		try {
@@ -292,7 +316,7 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}		
 	}
-	
+
 	// get datastream
 	public Datastream getDatastream(Integer feedid, String datastreamid) throws CosmException {
 		try {
@@ -309,7 +333,7 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}
 	}
-	
+
 	// get datastreams
 	public Datastream[] getDatastreams(Integer feedid) throws CosmException {
 		try {
@@ -320,19 +344,19 @@ public class Cosm {
 		}
 
 	}
-	
+
 	// create datastream
 	public Datastream createDatastream(Integer feedid, Datastream datastream) throws CosmException {
 		try {
 			HttpPost request = new HttpPost("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams.json");
 			JSONObject jo = new JSONObject();
 			jo.put("version", Cosm.VERSION);
-			
+
 			JSONArray ja = new JSONArray();
 			ja.put(datastream.toJSONObject());
 			jo.put("datastreams",ja);
-			
-			
+
+
 			request.setEntity(new StringEntity(jo.toString()));
 			HttpResponse response = client.execute(request);
 			StatusLine statusLine = response.getStatusLine();
@@ -349,7 +373,7 @@ public class Cosm {
 			throw new CosmException("Caught exception in create Datastream" + e.getMessage());
 		}
 	}
-		
+
 	// update datastream
 	public void updateDatastream(Integer feedid,String datastreamid, Datastream datastream) throws CosmException {
 		try {
@@ -367,7 +391,7 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}
 	}
-	
+
 	// delete datastream
 	public void deleteDatastream(Integer feedid,String datastreamid) throws CosmException {
 		try {
@@ -382,8 +406,8 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}		
 	}
-	
-	
+
+
 	// create datapoint
 	public void createDatapoint(Integer feedid,String datastreamid,Datapoint datapoint) throws CosmException {
 		try {
@@ -403,15 +427,15 @@ public class Cosm {
 			e.printStackTrace();
 			throw new CosmException("Caught exception in create datapoint" + e.getMessage());
 		}
-			
+
 	}
-	
+
 	// create datapoints
 	public void createDatapoints(Integer feedid,String datastreamid,Datapoint[] datapoints) throws CosmException {
 		try {
 			HttpPost request = new HttpPost("http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+"/datapoints.json");
 			JSONObject jo = new JSONObject();
-			
+
 			JSONArray ja = new JSONArray();
 			for(int i=0;(i<datapoints.length);i++) {			
 				ja.put(datapoints[i].toJSONObject());				
@@ -428,9 +452,9 @@ public class Cosm {
 		} catch ( Exception e) {
 			throw new CosmException("Caught exception in create datapoint" + e.getMessage());
 		}
-			
+
 	}
-	
+
 	// update datapoint
 	// Cosm documentation says, it's a post. It is in fact a PUT
 	public void updateDatapoint(Integer feedid,String datastreamid,Datapoint datapoint) throws CosmException {
@@ -471,7 +495,7 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}	
 	}
-	
+
 	// deleting a datapoint
 	public void deleteDatapoint(Integer feedid, String datastreamid,String at) throws CosmException {
 		try {
@@ -487,7 +511,7 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}	
 	}
-	
+
 	// deleting multiple datapoints
 	public void deleteDatapoints(Integer feedid, String datastreamid,String start, String end, String duration) throws CosmException {
 		try {
@@ -520,12 +544,11 @@ public class Cosm {
 		}	
 	}
 
-	
-	// listing all datapoints, historical queries
-	public Datapoint[] getDatapoints(Integer feedid, String datastreamid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type, int per_page,String timezone) throws CosmException {
+
+	public Waypoint[] getWaypoints(Integer feedid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type,String timezone) throws CosmException {
 		try {
-			String url = "http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+".json?";
-			
+			String url = "http://api.cosm.com/v2/feeds/"+feedid+".json?";
+
 			Boolean bAdd = false;
 			if ( start != null ) {
 				if ( bAdd ) url += '&';
@@ -557,24 +580,94 @@ public class Cosm {
 				url += "interval_type=" + interval_type.toString();
 				bAdd = true;
 			}
-			
+
 			if ( timezone != null ) {
 				if ( bAdd ) url += '&';			
 				url += "timezone=" + timezone;				
 			}
-			
+
+
+
+
+
+			HttpGet request = new HttpGet(url);				 
+			HttpResponse response = client.execute(request);
+			StatusLine statusLine = response.getStatusLine();
+			String body = client.getBody(response);
+			if ( statusLine.getStatusCode() == 200 ) {
+				Feed feed = CosmFactory.toFeed(body);
+				Location location = feed.getLocation();
+				Waypoint[] waypoints = location.getWaypoints();
+				return waypoints;
+			} else {
+				throw new CosmException(statusLine,body);
+			}
+
+		} catch ( CosmException e ) {
+			throw e;
+		} catch ( NullPointerException e ) {
+			throw new CosmException(NULL_POINTER_EXCEPTION_MESSAGE);
+		} catch ( IOException e ) {
+			throw new CosmException(IO_EXCEPTION_MESSAGE);
+		}
+	}
+
+
+
+	// listing all datapoints, historical queries
+	public Datapoint[] getDatapoints(Integer feedid, String datastreamid, String start, String end, String duration,Integer interval, Boolean find_previous, Interval_type interval_type, int per_page,String timezone) throws CosmException {
+		try {
+			String url = "http://api.cosm.com/v2/feeds/"+feedid+"/datastreams/"+datastreamid+".json?";
+
+			Boolean bAdd = false;
+			if ( start != null ) {
+				if ( bAdd ) url += '&';
+				url += "start=" + start;
+				bAdd = true;
+			}
+			if ( end != null ) {
+				if ( bAdd ) url += '&';
+				url += "end=" + end;
+				bAdd = true;
+			}
+			if ( duration != null ) {
+				if ( bAdd ) url += '&';
+				url += "duration=" + duration;
+				bAdd = true;
+			}
+			if ( interval != null ) {
+				if ( bAdd ) url += '&';
+				url += "interval=" + interval;
+				bAdd = true;
+			}
+			if ( find_previous != null ) {
+				if ( bAdd ) url += '&';
+				url += "find_previous=" + find_previous.toString();
+				bAdd = true;
+			}
+			if ( interval_type != null ) {
+				if ( bAdd ) url += '&';
+				url += "interval_type=" + interval_type.toString();
+				bAdd = true;
+			}
+
+			if ( timezone != null ) {
+				if ( bAdd ) url += '&';			
+				url += "timezone=" + timezone;				
+			}
+
 			if ( bAdd ) url += '&';			
 			url += "per_page=" + per_page;
 
 
-			
+
 			ArrayList<Datapoint> datapoints = new ArrayList<Datapoint>();
-			
+
 			boolean bContinue = true;
 			int page = 1;
 			while ( bContinue ) {
-				
-				
+
+
 				HttpGet request = new HttpGet(url + "&page=" + page);				 
 				HttpResponse response = client.execute(request);
 				StatusLine statusLine = response.getStatusLine();
@@ -594,7 +687,7 @@ public class Cosm {
 					throw new CosmException(statusLine,body);
 				}
 			}
-			
+
 			return datapoints.toArray(new Datapoint[datapoints.size()]);
 
 		} catch ( CosmException e ) {
@@ -603,7 +696,7 @@ public class Cosm {
 			throw new CosmException("IO Exception when communicating with Cosm");
 		}
 	}
-	
+
 	// create apikey
 	public Apikey createApikey(Apikey apikey) throws CosmException {
 		try {
@@ -627,7 +720,7 @@ public class Cosm {
 			throw new CosmException("Problem during JSON parsing");
 		}
 	}
-		
+
 	// get an apikey
 	public Apikey getApikey(String apikey) throws CosmException {
 		try {
@@ -644,7 +737,7 @@ public class Cosm {
 			throw new CosmException("error in getApikey");
 		}
 	}
-		
+
 	// get a list of apikeys 
 	public Apikey[] getApikeys() throws CosmException {
 		try {
@@ -661,7 +754,7 @@ public class Cosm {
 			throw new CosmException("error in getApikey");
 		}
 	}
-	
+
 	// deleting an apikey
 	public void deleteApikey(String apikey) throws CosmException {
 		try {
@@ -676,9 +769,9 @@ public class Cosm {
 			e.printStackTrace();
 			throw new CosmException(e.getMessage());
 		}	
-		
+
 	}
-		
+
 	// get trigger
 	public Trigger getTrigger(Integer id) throws CosmException {
 		try {
@@ -695,7 +788,7 @@ public class Cosm {
 			throw new CosmException("error in getTrigger");
 		}
 	}
-	
+
 	// get triggers
 	public Trigger[] getTriggers() throws CosmException {
 		try {
@@ -712,7 +805,7 @@ public class Cosm {
 			throw new CosmException("error in getTrigger");
 		}
 	}
-	
+
 	// delete trigger
 	public void deleteTrigger(Integer id) throws CosmException {
 		try {
@@ -727,9 +820,9 @@ public class Cosm {
 			e.printStackTrace();
 			throw new CosmException(e.getMessage());
 		}	
-		
+
 	}
-	
+
 	// create trigger
 	public Trigger createTrigger(Trigger trigger) throws CosmException {
 		try {
@@ -771,7 +864,7 @@ public class Cosm {
 			throw new CosmException("Caught exception in update trigger: " + e.getMessage());
 		}
 	}
-	
+
 	// get user
 	public User getUser(String login) throws CosmException {
 		try {
@@ -788,7 +881,7 @@ public class Cosm {
 			throw new CosmException("error in getUser");
 		}
 	}
-	
+
 	// get users
 	public User[] getUsers() throws CosmException {
 		try {
@@ -805,7 +898,7 @@ public class Cosm {
 			throw new CosmException("error in getUsers");
 		}
 	}
-	
+
 	// delete user
 	public void deleteUser(String login) throws CosmException {
 		try {
@@ -821,7 +914,7 @@ public class Cosm {
 			throw new CosmException(e.getMessage());
 		}			
 	}
-	
+
 	// update user
 	public void updateUser(String login,User user) throws CosmException {
 		try {
@@ -842,7 +935,7 @@ public class Cosm {
 			throw new CosmException("Caught exception in update trigger: " + e.getMessage());
 		}
 	}
-	
+
 	// create user
 	public void createUser(User user) throws CosmException {
 		try {
@@ -866,8 +959,8 @@ public class Cosm {
 			throw new CosmException("Caught exception in update createUser: " + e.getMessage());
 		}
 	}
-		
+
 	//TODO: get permissions	
 	//TODO: show permissions
-		
+
 }

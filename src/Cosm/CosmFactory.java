@@ -252,6 +252,27 @@ public class CosmFactory {
 	}
 	
 	
+	private static Waypoint toWaypoint(JSONObject jo) throws JSONException {
+		Waypoint waypoint = new Waypoint();
+		
+		String at = jo.optString("at");
+		if ( at != null ) {
+			waypoint.setAt(at);
+		}
+		
+		String lat = jo.optString("lat");
+		if ( lat != null ) {
+			waypoint.setLat(Double.parseDouble(lat));
+		}
+
+		String lon = jo.optString("lon");
+		if ( lon != null ) {
+			waypoint.setLon(Double.parseDouble(lon));
+		}
+		
+		return waypoint;
+	}
+	
 	private static Location toLocation(JSONObject jo) throws JSONException {
 		Location location = new Location();
 		
@@ -289,6 +310,17 @@ public class CosmFactory {
 		if ( domain != null ) {
 			location.setDomain(Domain.valueOf(domain));
 		}
+		
+		// check if waypoints are available
+		JSONArray jowps = jo.optJSONArray("waypoints");
+		if ( jowps != null ) {
+			ArrayList<Waypoint> waypoints = new ArrayList<Waypoint>();
+			for(int i=0;(i<jowps.length());i++) {
+				waypoints.add(CosmFactory.toWaypoint(jowps.getJSONObject(i)));
+			}
+			location.setWaypoints(waypoints.toArray(new Waypoint[waypoints.size()]));
+		}
+		
 
 		return location;
 	}
