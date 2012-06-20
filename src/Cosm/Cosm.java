@@ -807,20 +807,18 @@ public class Cosm {
 	}
 
 	// delete trigger
-	public void deleteTrigger(Integer id) throws CosmException {
+	public void deleteTrigger(String id) throws CosmException {
 		try {
 			HttpDelete request = new HttpDelete("http://api.cosm.com/v2/triggers/"+ id);			
 			HttpResponse response = client.execute(request);
 			StatusLine statusLine = response.getStatusLine();
-			client.getBody(response);
+			String body = client.getBody(response);
 			if ( statusLine.getStatusCode() != 200 ) {
-				throw new HttpException(statusLine.toString());
+				throw new CosmException(statusLine,body);
 			}
 		} catch ( Exception e ) {
-			e.printStackTrace();
-			throw new CosmException(e.getMessage());
+			throw new CosmException(e);
 		}	
-
 	}
 
 	// create trigger

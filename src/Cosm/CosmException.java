@@ -8,6 +8,14 @@ public class CosmException extends Exception {
 	private StatusLine statusLine;
 	private String title;
 	private String errorMessage;
+	private Exception exception;
+	
+	public CosmException(Exception e) {
+		this.statusLine = null;
+		this.errorMessage = "";
+		this.title = "JCosmAPI Caught an exception";
+		this.exception = e;
+	}
 	
 	public CosmException(StatusLine statusLine,String body) {
 		this.statusLine = statusLine;
