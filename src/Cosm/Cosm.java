@@ -91,9 +91,15 @@ public class Cosm {
 			throw new CosmException(IO_EXCEPTION_MESSAGE);
 		}
 	}
+	
+	/**
+	 * 
+	 */
+	public Feed[] getFeeds(String query,Content content,String tag,String user,String units,Status status,Order order,Boolean show_user) throws CosmException {
+		return getFeeds(query,content,tag,user,units,status,order,show_user,null,null,null,null);
+	}
 
 	// get feeds with more search options
-	// TODO: include lat, lon, distance, and distance_units in query
 	/**
 	 * returns a list of feed objects based on a number of optional query parameters. If set to {@link null}, a parameter is ignored.
 	 * 
@@ -105,10 +111,14 @@ public class Cosm {
 	 * @param status Parameter of type {@link Status}
 	 * @param order Parameter of type {@link Order}. Used for ordering the results.
 	 * @param show_user Include user login and user level for each feed. {@link Boolean} with possible values: true, false (default)
+	 * @param lat Used to find feeds located around this latitude. Used if ids/_datastreams_ are not specified.
+	 * @param lon Used to find feeds located around this longitude. Used if ids/_datastreams_ are not specified.
+	 * @param distance search radius
+	 * @param distance_units miles or kms
 	 * @return Array of {@link Feed} objects
 	 * @throws CosmException
 	 */
-	public Feed[] getFeeds(String query,Content content,String tag,String user,String units,Status status,Order order,Boolean show_user) throws CosmException {
+	public Feed[] getFeeds(String query,Content content,String tag,String user,String units,Status status,Order order,Boolean show_user,Double lat,Double lon,Double distance,DistanceUnit distance_units) throws CosmException {
 		String q = "";
 		Boolean bAdd = false;
 
@@ -152,9 +162,28 @@ public class Cosm {
 			q += "show_user=" + show_user.toString();
 			bAdd = true;			
 		}
+		if ( lat != null ) {
+			if ( bAdd ) q += '&';
+			q += "lat=" + lat;
+			bAdd = true;						
+		}
+		if ( lon != null ) {
+			if ( bAdd ) q += '&';
+			q += "lon=" + lon;
+			bAdd = true;						
+		}
+		if ( distance != null ) {
+			if ( bAdd ) q += '&';
+			q += "distance=" + distance;
+			bAdd = true;						
+		}
+		if ( distance_units != null ) {
+			if ( bAdd ) q += '&';
+			q += "distance_units=" + distance_units.toString();
+			bAdd = true;									
+		}
 
-
-
+	
 
 		try {
 			URI uri = new URI("http","api.cosm.com","/v2/feeds.json",q,null);
